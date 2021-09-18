@@ -1,0 +1,26 @@
+---
+import ReactCounter from '../components/counters/ReactCounter.jsx';
+import SolidCounter from '../components/counters/SolidCounter.jsx';
+import SvelteCounter from '../components/counters/SvelteCounter.svelte';
+
+const name = "Edaz";
+---
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>{`${name}'s dashboard`}</title>
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/style/global.css">
+</head>
+<body>
+    <main>
+        <h1>{name}'s cool looking dashboard</h1>
+
+        <ReactCounter client:visible />
+        <SolidCounter client:visible />
+        <SvelteCounter client:visible />
+    </main>
+</body>
+</html>
