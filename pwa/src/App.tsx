@@ -51,6 +51,7 @@ function App() {
 									<Button
 										onClick={() => setLoggedIn(false)}
 										variant="outlined"
+										color="secondary"
 									>
 										Log out
 									</Button>
