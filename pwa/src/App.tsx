@@ -50,7 +50,7 @@ function App() {
 									<Typography>Logged in!</Typography>
 									<Button
 										onClick={() => setLoggedIn(false)}
-										variant="outlined"
+										variant="contained"
 										color="secondary"
 									>
 										Log out
