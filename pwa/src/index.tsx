@@ -4,12 +4,15 @@ import App from "./App";
 import { CssBaseline } from "@mui/material";
 import React from "react";
 import ReactDOM from "react-dom";
+import { UserContextProvider } from "./data";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
 	<React.StrictMode>
 		<CssBaseline />
-		<App />
+		<UserContextProvider>
+			<App />
+		</UserContextProvider>
 	</React.StrictMode>,
 	document.getElementById("root")
 );

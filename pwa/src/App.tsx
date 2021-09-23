@@ -1,19 +1,17 @@
-import { Box, Button, Typography } from "@mui/material";
-import {
-	Route,
-	HashRouter as Router,
-	Switch as RouterSwitch,
-} from "react-router-dom";
+import { Dashboard, Login } from "./pages";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-import { useState } from "react";
+import { HashRouter as Router } from "react-router-dom";
+import { UserContext } from "./data";
+import { useContext } from "react";
 
 const primary = "#2e9e1b";
 const secondary = "#5e1276";
 const background = "#121212";
 
 const theme = createTheme({
-	shape: { borderRadius: 99999 },
+	spacing: 4,
+	shape: { borderRadius: 8 },
 	palette: {
 		mode: "dark",
 		primary: {
@@ -37,43 +35,12 @@ declare module "@mui/material/Button" {
 }
 
 function App() {
-	const [loggedIn, setLoggedIn] = useState(false);
+	const [user] = useContext(UserContext);
 
 	return (
-		<>
-			<ThemeProvider theme={theme}>
-				<Router>
-					<RouterSwitch>
-						<Route path="/*">
-							{loggedIn ? (
-								<Box>
-									<Typography>Logged in!</Typography>
-									<Button
-										onClick={() => setLoggedIn(false)}
-										variant="contained"
-										color="secondary"
-									>
-										Log out
-									</Button>
-								</Box>
-							) : (
-								<Box>
-									<Typography>
-										Not logged in :{"("}
-									</Typography>
-									<Button
-										onClick={() => setLoggedIn(true)}
-										variant="outlined"
-									>
-										Log in
-									</Button>
-								</Box>
-							)}
-						</Route>
-					</RouterSwitch>
-				</Router>
-			</ThemeProvider>
-		</>
+		<ThemeProvider theme={theme}>
+			<Router>{user.loggedIn ? <Dashboard /> : <Login />}</Router>
+		</ThemeProvider>
 	);
 }
 
