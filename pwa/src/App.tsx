@@ -28,13 +28,20 @@ const theme = createTheme({
 	},
 });
 
+window.theme = theme;
+declare global {
+	interface Window {
+		theme: any;
+	}
+}
+
 declare module "@mui/material/Button" {
 	interface ButtonPropsVariantOverrides {
 		dotted: true;
 	}
 }
 
-function App() {
+export default function App() {
 	const [user] = useContext(UserContext);
 
 	return (
@@ -43,5 +50,3 @@ function App() {
 		</ThemeProvider>
 	);
 }
-
-export default App;

@@ -28,10 +28,10 @@ reportWebVitals(console.log);
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA
 serviceWorkerRegistration.register();
-window.serviceWorkerRegistration = serviceWorkerRegistration;
 
 declare global {
 	interface Window {
 		serviceWorkerRegistration: any;
 	}
 }
+window.serviceWorkerRegistration = serviceWorkerRegistration;
