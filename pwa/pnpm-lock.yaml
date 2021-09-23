@@ -12,12 +12,25 @@ specifiers:
   '@types/node': ^12.0.0
   '@types/react': ^17.0.0
   '@types/react-dom': ^17.0.0
+  '@types/react-router-dom': ^5.3.0
   react: ^17.0.2
   react-dom: ^17.0.2
   react-router-dom: ^5.3.0
   react-scripts: 4.0.3
   typescript: ^4.1.2
   web-vitals: ^1.0.1
+  workbox-background-sync: ^5.1.3
+  workbox-broadcast-update: ^5.1.3
+  workbox-cacheable-response: ^5.1.3
+  workbox-core: ^5.1.3
+  workbox-expiration: ^5.1.3
+  workbox-google-analytics: ^5.1.3
+  workbox-navigation-preload: ^5.1.3
+  workbox-precaching: ^5.1.3
+  workbox-range-requests: ^5.1.3
+  workbox-routing: ^5.1.3
+  workbox-strategies: ^5.1.3
+  workbox-streams: ^5.1.3
 
 dependencies:
   '@emotion/react': 11.4.1_9b26932173ac5a93c18fc8634be19f05
@@ -37,6 +50,21 @@ dependencies:
   react-scripts: 4.0.3_react@17.0.2+typescript@4.4.3
   typescript: 4.4.3
   web-vitals: 1.1.2
+  workbox-background-sync: 5.1.4
+  workbox-broadcast-update: 5.1.4
+  workbox-cacheable-response: 5.1.4
+  workbox-core: 5.1.4
+  workbox-expiration: 5.1.4
+  workbox-google-analytics: 5.1.4
+  workbox-navigation-preload: 5.1.4
+  workbox-precaching: 5.1.4
+  workbox-range-requests: 5.1.4
+  workbox-routing: 5.1.4
+  workbox-strategies: 5.1.4
+  workbox-streams: 5.1.4
+
+devDependencies:
+  '@types/react-router-dom': 5.3.0
 
 packages:
 
@@ -2465,6 +2493,10 @@ packages:
       '@types/node': 12.20.26
     dev: false
 
+  /@types/history/4.7.9:
+    resolution: {integrity: sha512-MUc6zSmU3tEVnkQ78q0peeEjKWPUADMlC/t++2bI8WnAG2tvYRPIgHG8lWkXwqc8MsUF6Z2MOf+Mh5sazOmhiQ==}
+    dev: true
+
   /@types/html-minifier-terser/5.1.2:
     resolution: {integrity: sha512-h4lTMgMJctJybDp8CQrxTUiiYmedihHWkjnF/8Pxseu2S6Nlfcy8kwboQ8yejh456rP2yWoEVm1sS/FVsfM48w==}
     dev: false
@@ -2522,7 +2554,6 @@ packages:
 
   /@types/prop-types/15.7.4:
     resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
-    dev: false
 
   /@types/q/1.5.5:
     resolution: {integrity: sha512-L28j2FcJfSZOnL1WBjDYp2vUHCeIFlyYI/53EwD/rKUBQ7MtUUfbQWiyKJGpcnv4/WgrhWsFKrcPstcAt/J0tQ==}
@@ -2540,6 +2571,21 @@ packages:
       '@types/react': 17.0.24
     dev: false
 
+  /@types/react-router-dom/5.3.0:
+    resolution: {integrity: sha512-svUzpEpKDwK8nmfV2vpZNSsiijFNKY8+gUqGqvGGOVrXvX58k1JIJubZa5igkwacbq/0umphO5SsQn/BQsnKpw==}
+    dependencies:
+      '@types/history': 4.7.9
+      '@types/react': 17.0.24
+      '@types/react-router': 5.1.16
+    dev: true
+
+  /@types/react-router/5.1.16:
+    resolution: {integrity: sha512-8d7nR/fNSqlTFGHti0R3F9WwIertOaaA1UEB8/jr5l5mDMOs4CidEgvvYMw4ivqrBK+vtVLxyTj2P+Pr/dtgzg==}
+    dependencies:
+      '@types/history': 4.7.9
+      '@types/react': 17.0.24
+    dev: true
+
   /@types/react-transition-group/4.4.3:
     resolution: {integrity: sha512-fUx5muOWSYP8Bw2BUQ9M9RK9+W1XBK/7FLJ8PTQpnpTEkn0ccyMffyEQvan4C3h53gHdx7KE5Qrxi/LnUGQtdg==}
     dependencies:
@@ -2552,7 +2598,6 @@ packages:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.9
-    dev: false
 
   /@types/resolve/0.0.8:
     resolution: {integrity: sha512-auApPaJf3NPfe18hSoJkp8EbZzer2ISk7o8mCC3M9he/a04+gbMF97NkpD2S8riMGvm4BMRI59/SZQSaLTKpsQ==}
@@ -2562,7 +2607,6 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
-    dev: false
 
   /@types/source-list-map/0.1.2:
     resolution: {integrity: sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==}
@@ -4605,7 +4649,6 @@ packages:
 
   /csstype/3.0.9:
     resolution: {integrity: sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==}
-    dev: false
 
   /cyclist/1.0.1:
     resolution: {integrity: sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=}
