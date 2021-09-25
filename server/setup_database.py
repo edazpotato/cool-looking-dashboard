@@ -11,8 +11,8 @@ CREATE TABLE "url_aliases" (
 	"meta_title"	TEXT,
 	"meta_description"	TEXT,
 	"meta_colour"	TEXT,
-	"uses"	INTEGER NOT NULL,
 	"created_at"	INTEGER NOT NULL,
+	"uses"	INTEGER NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 """)
