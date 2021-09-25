@@ -1,14 +1,15 @@
-from typing import Optional
-
-from fastapi import FastAPI
+from fastapi import FastAPI,APIRouter
 
 app = FastAPI()
 
+api = APIRouter()
+
+@api.get("/")
+async def get_api_root():
+    return {"error": False, "data": {"message": "Hello, world!"}}
+
+app.include_router(api,prefix="/api")
+
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+def get_root():
+    return "Wsssup?"

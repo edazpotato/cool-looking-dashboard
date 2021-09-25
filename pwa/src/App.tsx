@@ -8,6 +8,7 @@ import { useContext } from "react";
 const primary = "#2e9e1b";
 const secondary = "#5e1276";
 const background = "#121212";
+const text = "#ffffff";
 
 const theme = createTheme({
 	spacing: 4,
@@ -24,7 +25,8 @@ const theme = createTheme({
 		},
 	},
 	components: {
-		MuiTypography: { styleOverrides: { root: { color: "#ffffff" } } },
+		MuiTypography: { styleOverrides: { root: { color: text } } },
+		MuiButtonBase: { styleOverrides: { root: { color: primary } } },
 	},
 });
 
