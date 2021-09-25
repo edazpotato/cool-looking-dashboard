@@ -74,7 +74,7 @@ export function Dashboard() {
 	) : (
 		<Typography>
 			Something is very broken. The dashboard is trying to render, but you
-			aren't logged in.
+			aren{"'"}t logged in.
 		</Typography>
 	);
 }

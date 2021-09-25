@@ -32,7 +32,7 @@ api = APIRouter()
 async def get_all_url_aliases():
 	try:
 		aliases = []
-		for alias in cursor.execute("SELECT * FROM url_aliases ORDER BY created_at"):
+		for alias in cursor.execute("SELECT * FROM url_aliases ORDER BY uses DESC"):
 			# print(alias)
 			aliases.append({
 				"id": alias[0],

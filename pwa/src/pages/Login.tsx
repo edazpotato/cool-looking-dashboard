@@ -9,7 +9,13 @@ export function Login() {
 		<Box>
 			<Typography>Not logged in :{"("}</Typography>
 			<Button
-				onClick={() => setUser({ loggedIn: true, name: "Edaz" })}
+				onClick={() =>
+					setUser({
+						loggedIn: true,
+						name: "Edaz",
+						token: "ligma1000",
+					})
+				}
 				variant="outlined"
 			>
 				Log in
@@ -18,7 +24,7 @@ export function Login() {
 	) : (
 		<Typography>
 			Something is very broken. The login page is trying to render, but
-			you're already logged in.
+			you{"'"}re already logged in.
 		</Typography>
 	);
 }
