@@ -9,6 +9,7 @@ import { Route, Switch as RouterSwitch } from "react-router-dom";
 import { useContext, useState } from "react";
 
 import { Sidebar } from "../components";
+import { URLAlias } from "./DashboardPages";
 import { UserContext } from "../data";
 
 const drawerWidth = 300;
@@ -29,20 +30,44 @@ export function Dashboard() {
 			<Sidebar
 				mobileOpen={mobileSidebarOpen}
 				onClose={() => setMobileSidebarOpen(false)}
+				onOpen={() => setMobileSidebarOpen(true)}
 				width={drawerWidth}
 			/>
 			<RouterSwitch>
-				<Route path="/">
+				<Route path="/" exact>
 					<Typography>{user.name}, you are logged in! </Typography>
 					{!onDesktop && (
-						<Button
-							onClick={() => setMobileSidebarOpen(true)}
-							variant="contained"
-							color="secondary"
-						>
-							Open sidebar
-						</Button>
+						<Box>
+							<Button
+								onClick={() => setMobileSidebarOpen(true)}
+								variant="contained"
+								color="secondary"
+							>
+								Open sidebar
+							</Button>
+						</Box>
 					)}
+				</Route>
+				<Route path="/url-alias">
+					<URLAlias />
+				</Route>
+				<Route path="/*">
+					<Typography>
+						Page not found lol.
+						<br />
+						Not a 404 though because this is client side.
+					</Typography>
+					<Box>
+						{!onDesktop && (
+							<Button
+								onClick={() => setMobileSidebarOpen(true)}
+								variant="contained"
+								color="secondary"
+							>
+								Open sidebar
+							</Button>
+						)}
+					</Box>
 				</Route>
 			</RouterSwitch>
 		</Box>
