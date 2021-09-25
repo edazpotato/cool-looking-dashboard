@@ -1,6 +1,7 @@
 import sqlite3
-from fastapi import FastAPI, APIRouter, Body
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from typing import Optional
 from pydantic import BaseModel
 import time
@@ -16,6 +17,8 @@ not_sus_website = "https://wikipedia.org/"
 
 db = sqlite3.connect("datameridian.db")
 cursor = db.cursor()
+
+templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
 
@@ -68,8 +71,8 @@ app.include_router(api,prefix="/api")
 def get_root():
 	return "Wsssup?"
 
-@app.get("/a/{slug}")
-async def go_to_alias(slug: str):
+@app.get("/a/{slug}", response_class=HTMLResponse, status_code=308)
+async def go_to_alias(request: Request, slug: str):
 	try:
 		cursor.execute("SELECT * FROM url_aliases WHERE alias_slug=:slug", {"slug": slug})
 		alias = cursor.fetchone()
@@ -77,9 +80,11 @@ async def go_to_alias(slug: str):
 		if (alias):
 			cursor.execute("UPDATE url_aliases SET uses=:updated_uses WHERE id=:id", {"updated_uses": alias[7]+1, "id": alias[0]})
 			db.commit()
-			return RedirectResponse(alias[2])
+			# return RedirectResponse(alias[2])
+			return templates.TemplateResponse("alias.html", {"request": request, "url": alias[2], "title": alias[3], "description": alias[4], "colour": alias[5]},
+			headers={"Location": alias[2]}, status_code=308)
 		else:
-			return RedirectResponse(not_sus_website)
+			return RedirectResponse(not_sus_website, status_code=308)
 	except Exception as e:
 		print(e)
-		return RedirectResponse(not_sus_website)
+		return RedirectResponse(not_sus_website, status_code=308)

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="refresh" content="0; url={{ url }}" />
+
+		<!-- Vanilla HTMl meta tags -->
+		<meta name="theme-color" content="{{ colour }}" />
+		<meta name="description" content="{{ description }}" />
+		<title>{{ title }}</title>
+
+		<!-- Open Graph -->
+		<meta property="og:title" content="{{ title }}" />
+		<meta property="og:description" content="{{ description }}" />
+		<!-- <meta property="og:url" content="{{ url }}"> -->
+
+		<!-- Twitter -->
+		<meta name="twitter:title" content="{{ title }}" />
+		<meta name="twitter:description" content="{{ description }}" />
+
+		<style>
+			html,
+			body {
+				height: 100%;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+				font-weight: bold;
+				font-size: 2rem;
+				font-family: sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		Redirecting you to {{ title }}...
+	</body>
+</html>
