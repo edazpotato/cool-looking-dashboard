@@ -80,6 +80,11 @@ async def go_to_alias(request: Request, slug: str):
 		if (alias):
 			cursor.execute("UPDATE url_aliases SET uses=:updated_uses WHERE id=:id", {"updated_uses": alias[7]+1, "id": alias[0]})
 			db.commit()
+			
+			# TODO: Add something that takes the user agent and determines wether to
+			#  do a http redirect (fast, for humans) or a meta redirect with a delay of 
+			#  a couple of seconds (slow, for bots that generate previews).
+			
 			# return RedirectResponse(alias[2])
 			return templates.TemplateResponse("alias.html", {"request": request, "url": alias[2], "title": alias[3], "description": alias[4], "colour": alias[5]},
 			headers={"Location": alias[2]})
