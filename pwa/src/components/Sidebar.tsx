@@ -1,5 +1,6 @@
 import {
 	Box,
+	Button,
 	Divider,
 	Drawer,
 	IconButton,
@@ -42,7 +43,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
-	const [] = useContext(UserContext);
+	const [, setUser] = useContext(UserContext);
 	const theme = useTheme();
 	const onMobile = !useMediaQuery(theme.breakpoints.up("md"));
 
@@ -56,7 +57,7 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 		/iPad|iPhone|iPod/.test(navigator.userAgent);
 
 	const drawerContent = (
-		<Stack>
+		<Stack sx={{ flex: 1, mb: 4 }}>
 			<Box p={2}>
 				<Stack direction="row" alignItems="center">
 					<Typography variant="h6">CL-Dash</Typography>
@@ -87,6 +88,12 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 					</ListItem>
 				))}
 			</List>
+			<Button
+				sx={{ mt: "auto" }}
+				onClick={() => setUser({ loggedIn: false })}
+			>
+				Log out
+			</Button>
 		</Stack>
 	);
 

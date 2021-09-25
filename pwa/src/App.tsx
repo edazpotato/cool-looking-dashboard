@@ -11,7 +11,7 @@ const background = "#121212";
 
 const theme = createTheme({
 	spacing: 4,
-	shape: { borderRadius: 8 },
+	shape: { borderRadius: 0 },
 	palette: {
 		mode: "dark",
 		primary: {
