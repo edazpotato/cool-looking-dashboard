@@ -7,7 +7,7 @@ cursor.execute("""
 CREATE TABLE "url_aliases" (
 	"id"	INTEGER NOT NULL UNIQUE,
 	"alias_slug"	TEXT NOT NULL UNIQUE,
-	"cannoncial_url"	TEXT NOT NULL,
+	"canonical_url"	TEXT NOT NULL,
 	"meta_title"	TEXT,
 	"meta_description"	TEXT,
 	"meta_colour"	TEXT,

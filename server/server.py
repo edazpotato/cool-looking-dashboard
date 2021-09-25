@@ -1,6 +1,16 @@
 import sqlite3
-from fastapi import FastAPI,APIRouter
+from fastapi import FastAPI, APIRouter, Body
 from fastapi.responses import RedirectResponse
+from typing import Optional
+from pydantic import BaseModel
+import time
+
+class NewURLAlias(BaseModel):
+	slug: str
+	canonical_url: str
+	meta_title: Optional[str]
+	meta_description: Optional[str]
+	meta_colour: Optional[str]
 
 not_sus_website = "https://wikipedia.org/"
 
@@ -24,7 +34,7 @@ async def get_url_aliases():
 			aliases.append({
 				"id": alias[0],
 				"slug": alias[1],
-				"cannoncial_url": alias[2],
+				"canonical_url": alias[2],
 				"meta": {
 					"title": alias[3],
 					"description": alias[4],
@@ -34,8 +44,21 @@ async def get_url_aliases():
 				"uses": alias[7]
 			})
 
-			return {"error": False, "data": aliases}
+		return {"error": False, "data": aliases}
 
+	except Exception:
+		return {"error": True}
+
+@api.post("/url-aliases")
+async def create_url_alias(alias: NewURLAlias):
+	try:
+		cursor.execute("""INSERT INTO url_aliases
+		(alias_slug, canonical_url, created_at, uses, meta_title, meta_description, meta_colour)
+		values (:slug, :canonical_url, :created_at, :uses, :meta_title, :meta_description, :meta_colour)""",
+			{"slug": alias.slug, "canonical_url": alias.canonical_url, "created_at": time.time(), "uses": 0, "meta_title": alias.meta_title,
+				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour})
+		db.commit()
+		return {"error": False}
 	except Exception:
 		return {"error": True}
 
