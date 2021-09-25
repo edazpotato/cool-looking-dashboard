@@ -71,7 +71,7 @@ app.include_router(api,prefix="/api")
 def get_root():
 	return "Wsssup?"
 
-@app.get("/a/{slug}", response_class=HTMLResponse, status_code=308)
+@app.get("/a/{slug}", response_class=HTMLResponse)
 async def go_to_alias(request: Request, slug: str):
 	try:
 		cursor.execute("SELECT * FROM url_aliases WHERE alias_slug=:slug", {"slug": slug})
@@ -82,9 +82,9 @@ async def go_to_alias(request: Request, slug: str):
 			db.commit()
 			# return RedirectResponse(alias[2])
 			return templates.TemplateResponse("alias.html", {"request": request, "url": alias[2], "title": alias[3], "description": alias[4], "colour": alias[5]},
-			headers={"Location": alias[2]}, status_code=308)
+			headers={"Location": alias[2]})
 		else:
-			return RedirectResponse(not_sus_website, status_code=308)
+			return RedirectResponse(not_sus_website)
 	except Exception as e:
 		print(e)
-		return RedirectResponse(not_sus_website, status_code=308)
+		return RedirectResponse(not_sus_website)
