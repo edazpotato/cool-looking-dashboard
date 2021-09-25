@@ -1,6 +1,7 @@
 # Whatever
 __pycache__
 __pycache__/
+*.db
 
 # build output
 dist
