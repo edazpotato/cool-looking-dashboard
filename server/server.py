@@ -14,6 +14,9 @@ class NewURLAlias(BaseModel):
 	meta_description: Optional[str]
 	meta_colour: Optional[str]
 
+class NewToken(BaseModel):
+	mode: str
+
 not_sus_website = "https://wikipedia.org/"
 
 tokens = ["ligma1000"]
@@ -41,9 +44,13 @@ app = FastAPI()
 
 api = APIRouter()
 
-# @api.get("/")
-# async def get_api_root():
-# 	return {"error": False, "data": {"message": "Hello, world!"}}
+@api.post("/auth/please-give-me-a-token-pretty-please")
+async def get_auth_token(request: Request, response: Response, data: NewToken):
+	level = await get_clearance_level(request)
+	if level < 1:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have the clearance to even get a token lmao."}
+	return {"error": False, "data": "You must have patience, my child."}
 
 @api.get("/url-aliases")
 async def get_all_url_aliases(request: Request, response: Response):
@@ -146,10 +153,6 @@ async def delete_url_alias(request: Request, response: Response, slug: str):
 		return {"error": True}
 
 app.include_router(api,prefix="/api")
-
-# @app.get("/")
-# def get_root():
-# 	return "Wsssup?"
 
 @app.get("/a/{slug}", response_class=HTMLResponse)
 async def go_to_alias(request: Request, slug: str):
