@@ -125,35 +125,45 @@ export function URLAlias() {
 				</DialogTitle>
 				<DialogContent>
 					<Stack direction="row">
-						<Typography variant="subtitle1">
-							{currentAlias?.uses} hits so far.
-						</Typography>
-						<Button
-							variant="contained"
-							color="error"
-							onClick={() => {
-								if (currentAlias) {
-									callAPI(
-										`url-aliases/${currentAlias.slug}`,
-										user.token,
-										{
-											method: "DELETE",
-										}
-									).then((data) => {
-										// console.log(data);
-										if (data.error === false) {
-											console.log(data.error);
-											setEditDialogOpen(false);
-											setCurrentAlias(null);
-											makeRequest();
-										}
-									});
-								}
-							}}
-							sx={{ ml: "auto" }}
-						>
-							Delete
-						</Button>
+						<Stack>
+							<Typography>ID: {currentAlias?.id}</Typography>
+							<Typography>Hits: {currentAlias?.uses}</Typography>
+							<Typography>
+								Created:{" "}
+								{new Date(
+									Math.floor(
+										(currentAlias?.created || 0) * 1000
+									)
+								).toLocaleString()}
+							</Typography>
+						</Stack>
+						<Box sx={{ ml: "auto" }}>
+							<Button
+								variant="contained"
+								color="error"
+								onClick={() => {
+									if (currentAlias) {
+										callAPI(
+											`url-aliases/${currentAlias.slug}`,
+											user.token,
+											{
+												method: "DELETE",
+											}
+										).then((data) => {
+											// console.log(data);
+											if (data.error === false) {
+												console.log(data.error);
+												setEditDialogOpen(false);
+												setCurrentAlias(null);
+												makeRequest();
+											}
+										});
+									}
+								}}
+							>
+								Delete
+							</Button>
+						</Box>
 					</Stack>
 
 					<Stack
