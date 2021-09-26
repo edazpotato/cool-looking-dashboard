@@ -19,6 +19,7 @@ export function Login() {
 								mode: "begging",
 								data: { username: "edaz" },
 							}),
+							method: "POST",
 						}
 					)
 						.catch(console.warn)
