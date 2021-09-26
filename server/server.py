@@ -6,6 +6,7 @@ from typing import Optional
 from pydantic import BaseModel
 import time
 import re
+import secrets
 
 class NewURLAlias(BaseModel):
 	slug: str
@@ -14,12 +15,15 @@ class NewURLAlias(BaseModel):
 	meta_description: Optional[str]
 	meta_colour: Optional[str]
 
+class NewTokenData(BaseModel):
+	username: str
 class NewToken(BaseModel):
 	mode: str
+	data: NewTokenData
 
 not_sus_website = "https://wikipedia.org/"
 
-tokens = ["ligma1000"]
+tokens = []
 
 async def get_clearance_level(req: Request) -> int:
 	if req.headers["X-Clearance"]:
@@ -29,8 +33,12 @@ async def get_clearance_level(req: Request) -> int:
 
 		level_3_auth_regex_match = level_3_auth_regex.match(clearance)
 		if level_3_auth_regex_match is not None:
-			if level_3_auth_regex_match.group(1) in tokens:
-				return 3
+			for token in tokens:
+				if token["actual_token"] == level_3_auth_regex_match.group(1):
+					if token["expires_at"] > time.time():
+						return 3
+					else:
+						tokens.remove(token)
 		elif level_1_auth_regex.match(clearance) is not None:
 			return 1
 	return 0
@@ -45,12 +53,15 @@ app = FastAPI()
 api = APIRouter()
 
 @api.post("/auth/please-give-me-a-token-pretty-please")
-async def get_auth_token(request: Request, response: Response, data: NewToken):
+async def get_auth_token(request: Request, response: Response, body: NewToken):
 	level = await get_clearance_level(request)
 	if level < 1:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have the clearance to even get a token lmao."}
-	return {"error": False, "data": "You must have patience, my child."}
+	token = secrets.token_urlsafe(69)
+	token_expires_at = time.time() + 60 * 60
+	tokens.append({"actual_token": token, "expires_at": token_expires_at})
+	return {"error": False, "data": {"your_shiny_new_token": token, "that_expires_at_this_unix_timestamp": token_expires_at, "username": body.data.username }}
 
 @api.get("/url-aliases")
 async def get_all_url_aliases(request: Request, response: Response):

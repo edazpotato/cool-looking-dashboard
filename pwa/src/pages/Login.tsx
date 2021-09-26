@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 
 import { UserContext } from "../data";
+import { callAPI } from "../utils";
 import { useContext } from "react";
 
 export function Login() {
@@ -9,13 +10,29 @@ export function Login() {
 		<Box>
 			<Typography>Not logged in :{"("}</Typography>
 			<Button
-				onClick={() =>
-					setUser({
-						loggedIn: true,
-						name: "Edaz",
-						token: "ligma1000",
-					})
-				}
+				onClick={() => {
+					callAPI(
+						"auth/please-give-me-a-token-pretty-please",
+						undefined,
+						{
+							body: JSON.stringify({
+								mode: "begging",
+								data: { username: "edaz" },
+							}),
+						}
+					)
+						.catch(console.warn)
+						.then((data) => {
+							setTimeout(() => {
+								setUser({ loggedIn: false });
+							}, Math.floor(data["that_expires_at_this_unix_timestamp"] - Date.now()));
+							setUser({
+								loggedIn: true,
+								name: data["username"],
+								token: data["your_shiny_new_token"],
+							});
+						});
+				}}
 				variant="outlined"
 			>
 				Log in
