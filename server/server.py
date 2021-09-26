@@ -85,6 +85,19 @@ async def create_url_alias(alias: NewURLAlias):
 	except Exception:
 		return {"error": True}
 
+@api.patch("/url-aliases/{id}")
+async def update_url_alias(alias: NewURLAlias, id: int):
+	try:
+		cursor.execute("""UPDATE url_aliases SET 
+		alias_slug=:slug, canonical_url=:canonical_url, meta_title=:meta_title, meta_description=:meta_description, meta_colour=:meta_colour
+		WHERE id=:id""",
+			{"slug": alias.slug, "canonical_url": alias.canonical_url, "meta_title": alias.meta_title,
+				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "id": id})
+		db.commit()
+		return {"error": False}
+	except Exception:
+		return {"error": True}
+
 @api.delete("/url-aliases/{slug}")
 async def delete_url_alias(slug: str):
 	try:

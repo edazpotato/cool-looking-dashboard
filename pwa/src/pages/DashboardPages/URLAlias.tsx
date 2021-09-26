@@ -248,10 +248,35 @@ export function URLAlias() {
 						Cancel
 					</Button>
 					<Button
-						disabled
+						// disabled
 						onClick={() => {
-							setEditDialogOpen(false);
-							makeRequest();
+							if (currentAlias) {
+								callAPI(
+									`url-aliases/${currentAlias.id}`,
+									user.token,
+									{
+										method: "PATCH",
+										body: JSON.stringify({
+											slug: currentAlias.slug,
+											canonical_url:
+												currentAlias.canonical_url,
+											meta_title: currentAlias.meta.title,
+											meta_description:
+												currentAlias.meta.description,
+											meta_colour:
+												currentAlias.meta.colour,
+										}),
+									}
+								).then((data) => {
+									// console.log(data);
+									if (data.error === false) {
+										console.log(data.error);
+										setEditDialogOpen(false);
+										setCurrentAlias(null);
+										makeRequest();
+									}
+								});
+							}
 						}}
 					>
 						Save changes
