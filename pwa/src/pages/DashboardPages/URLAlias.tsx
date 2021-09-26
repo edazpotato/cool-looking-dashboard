@@ -18,10 +18,10 @@ import {
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
-import { useContext, useState } from "react";
+import { callAPI, useAPI } from "../../utils";
+import { useContext, useRef, useState } from "react";
 
 import { UserContext } from "../../data";
-import { useAPI } from "../../utils";
 
 interface URLAlias {
 	canonical_url: string;
@@ -41,15 +41,77 @@ export function URLAlias() {
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
-	const res = useAPI("url-aliases", user.loggedIn ? user.token : undefined);
-	const { error, loading } = res;
-	const data = res.data as URLAlias[];
+	const apiCall = useAPI(
+		"url-aliases",
+		user.loggedIn ? user.token : undefined
+	);
+	const { error, loading, makeRequest } = apiCall;
+	const data = apiCall.data as URLAlias[];
 
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [currentAlias, setCurrentAlias] = useState<null | URLAlias>(null);
+	const [newAliasDialogOpen, setNewAliasDialogOpen] = useState(false);
+	const formRef = useRef<any>(null);
 
 	return user.loggedIn ? (
-		<Box sx={{ width: "100%" }}>
+		<Stack sx={{ width: "100%" }}>
+			<Button
+				sx={{ ml: "auto", mr: 2, mt: 2 }}
+				variant="contained"
+				onClick={() => setNewAliasDialogOpen(true)}
+			>
+				New Alias
+			</Button>
+			<List>
+				{loading ? (
+					Object.keys(Array.from(Array(10))).map((key) => (
+						<ListItem key={key}>
+							<Stack>
+								<Skeleton
+									variant="text"
+									height={20}
+									width={200}
+								/>
+								<Skeleton
+									variant="text"
+									height={20}
+									width={Math.max(
+										300 * (Math.random() * 1.4),
+										200
+									)}
+								/>
+							</Stack>
+						</ListItem>
+					))
+				) : error ? (
+					<ListItem>
+						<Alert severity="error">
+							<AlertTitle>
+								An error occurred while loading the aliases.
+							</AlertTitle>
+							{typeof error === "string" ? " " + error : null}
+						</Alert>
+					</ListItem>
+				) : (
+					data.map((item) => (
+						<ListItem
+							key={item.id}
+							button
+							onClick={() => {
+								setCurrentAlias(item);
+								setEditDialogOpen(true);
+							}}
+						>
+							<ListItemText
+								primary={`/a/${item.slug}`}
+								secondary={`${item.uses} hit${
+									item.uses === 1 ? "" : "s"
+								} redirected to ${item.canonical_url}`}
+							/>
+						</ListItem>
+					))
+				)}
+			</List>
 			<Dialog
 				fullScreen={!onDesktop}
 				open={editDialogOpen}
@@ -69,7 +131,25 @@ export function URLAlias() {
 						<Button
 							variant="contained"
 							color="error"
-							onClick={() => {}}
+							onClick={() => {
+								if (currentAlias) {
+									callAPI(
+										`url-aliases/${currentAlias.slug}`,
+										user.token,
+										{
+											method: "DELETE",
+										}
+									).then((data) => {
+										// console.log(data);
+										if (data.error === false) {
+											console.log(data.error);
+											setEditDialogOpen(false);
+											setCurrentAlias(null);
+											makeRequest();
+										}
+									});
+								}
+							}}
 							sx={{ ml: "auto" }}
 						>
 							Delete
@@ -157,62 +237,109 @@ export function URLAlias() {
 					<Button autoFocus onClick={() => setEditDialogOpen(false)}>
 						Cancel
 					</Button>
-					<Button onClick={() => setEditDialogOpen(false)}>
+					<Button
+						disabled
+						onClick={() => {
+							setEditDialogOpen(false);
+							makeRequest();
+						}}
+					>
 						Save changes
 					</Button>
 				</DialogActions>
 			</Dialog>
-			<List>
-				{loading ? (
-					Object.keys(Array.from(Array(10))).map((key) => (
-						<ListItem key={key}>
-							<Stack>
-								<Skeleton
-									variant="text"
-									height={20}
-									width={200}
-								/>
-								<Skeleton
-									variant="text"
-									height={20}
-									width={Math.max(
-										300 * (Math.random() * 1.4),
-										200
-									)}
-								/>
-							</Stack>
-						</ListItem>
-					))
-				) : error ? (
-					<ListItem>
-						<Alert severity="error">
-							<AlertTitle>
-								An error occurred while loading the aliases.
-							</AlertTitle>
-							{typeof error === "string" ? " " + error : null}
-						</Alert>
-					</ListItem>
-				) : (
-					data.map((item) => (
-						<ListItem
-							key={item.id}
-							button
-							onClick={() => {
-								setCurrentAlias(item);
-								setEditDialogOpen(true);
+			<Dialog
+				fullScreen={!onDesktop}
+				open={newAliasDialogOpen}
+				onClose={() => setNewAliasDialogOpen(false)}
+				maxWidth="sm"
+				fullWidth
+				aria-labelledby="new-alias-url-dialog-title"
+			>
+				<DialogTitle id="new-alias-url-dialog-title">
+					Create a new URL alias
+				</DialogTitle>
+				<form ref={formRef}>
+					<DialogContent>
+						<Stack
+							sx={{ mt: 2 }}
+							direction="row"
+							flexWrap="wrap"
+							gap={2}
+						>
+							<TextField label="Slug" required name="slug" />
+							<TextField
+								type="url"
+								label="Cannoncial URL"
+								required
+								name="canonical_url"
+							/>
+						</Stack>
+						<Stack
+							direction="row"
+							flexWrap="wrap"
+							gap={2}
+							sx={{ mt: 2 }}
+						>
+							<TextField label="Meta title" name="meta_title" />
+							<TextField
+								label="Meta description"
+								name="meta_description"
+							/>
+							<TextField
+								type="color"
+								sx={{ minWidth: "40%" }}
+								label="Meta colour"
+								name="meta_colour"
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							autoFocus
+							onClick={() => setNewAliasDialogOpen(false)}
+						>
+							Cancel
+						</Button>
+						<Button
+							// role="submit"
+							onClick={(e) => {
+								const form = formRef.current;
+								console.log(form);
+								form &&
+									callAPI("url-aliases", user.token, {
+										method: "POST",
+										body: JSON.stringify({
+											slug: form["slug"].value,
+											canonical_url:
+												form["canonical_url"].value,
+											meta_title: form["meta_title"].value
+												? form["meta_title"].value
+												: null,
+											meta_description: form[
+												"meta_description"
+											].value
+												? form["meta_description"].value
+												: null,
+											meta_colour: form["meta_colour"]
+												.value
+												? form["meta_colour"].value
+												: null,
+										}),
+									}).then((res) => {
+										if (res.error === false) {
+											setNewAliasDialogOpen(false);
+											makeRequest();
+										}
+									});
 							}}
 						>
-							<ListItemText
-								primary={`/a/${item.slug}`}
-								secondary={`${item.uses} hit${
-									item.uses === 1 ? "" : "s"
-								} redirected to ${item.canonical_url}`}
-							/>
-						</ListItem>
-					))
-				)}
-			</List>
-		</Box>
+							Create
+						</Button>
+					</DialogActions>
+				</form>
+			</Dialog>
+		</Stack>
 	) : (
 		<Typography>
 			Something is very wrong. You aren{"'"}t logged in, but you{"'"}re

@@ -29,7 +29,7 @@ const pages: { text: string; slug: string; icon: JSX.Element }[] = [
 		icon: <HomeIcon />,
 	},
 	{
-		text: "URL Aliaser",
+		text: "URL Aliases",
 		slug: "/url-alias",
 		icon: <LinkIcon />,
 	},

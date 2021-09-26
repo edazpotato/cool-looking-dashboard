@@ -88,11 +88,11 @@ async def create_url_alias(alias: NewURLAlias):
 @api.delete("/url-aliases/{slug}")
 async def delete_url_alias(slug: str):
 	try:
-		cursor.execute("DELETE url_aliases WHERE slug=:slug", {"slug": slug})
+		cursor.execute("DELETE FROM url_aliases WHERE alias_slug=:slug", {"slug": slug})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
-		print(e)
+		# print(e)
 		return {"error": True}
 
 app.include_router(api,prefix="/api")

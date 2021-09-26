@@ -1,6 +1,6 @@
 import { useDebugValue, useEffect, useState } from "react";
 
-export function useAPI(endpoint: string, token?: string, body?: any) {
+export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<boolean | string>(false);
 	const [data, setData] = useState<any>(null);
@@ -13,15 +13,18 @@ export function useAPI(endpoint: string, token?: string, body?: any) {
 			: "Successfully loaded data!"
 	);
 
-	useEffect(() => {
+	function makeRequest() {
+		setLoading(true);
+		setError(false);
 		fetch(`/api/${endpoint}`, {
+			...fetchArgs,
 			headers: {
 				"X-Clearance": token
 					? `Gigachad. Proof: ${token}`
 					: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
 				"Content-Type": "application/json",
+				...fetchArgs?.headers,
 			},
-			body: body ? JSON.stringify(body) : undefined,
 		})
 			.catch((error) => {
 				setError(error + "");
@@ -49,7 +52,28 @@ export function useAPI(endpoint: string, token?: string, body?: any) {
 				}
 				setLoading(false);
 			});
-	}, [endpoint, token, body]);
+	}
 
-	return { loading, error, data };
+	useEffect(() => {
+		makeRequest();
+	}, [endpoint, token, fetchArgs]);
+
+	return { loading, error, data, makeRequest, setData };
+}
+
+export async function callAPI(
+	endpoint: string,
+	token?: string,
+	fetchArgs?: any
+) {
+	return fetch(`/api/${endpoint}`, {
+		...fetchArgs,
+		headers: {
+			"X-Clearance": token
+				? `Gigachad. Proof: ${token}`
+				: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
+			"Content-Type": "application/json",
+			...fetchArgs?.headers,
+		},
+	}).then((res) => res.json());
 }
