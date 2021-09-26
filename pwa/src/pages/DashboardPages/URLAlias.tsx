@@ -55,13 +55,21 @@ export function URLAlias() {
 
 	return user.loggedIn ? (
 		<Stack sx={{ width: "100%" }}>
-			<Button
-				sx={{ ml: "auto", mr: 2, mt: 2 }}
-				variant="contained"
-				onClick={() => setNewAliasDialogOpen(true)}
-			>
-				New Alias
-			</Button>
+			<Stack direction="row" sx={{ ml: "auto", mr: 2, mt: 2, gap: 2 }}>
+				<Button
+					color="secondary"
+					variant="contained"
+					onClick={() => makeRequest()}
+				>
+					Refresh data
+				</Button>
+				<Button
+					variant="contained"
+					onClick={() => setNewAliasDialogOpen(true)}
+				>
+					New Alias
+				</Button>
+			</Stack>
 			<List>
 				{loading ? (
 					Object.keys(Array.from(Array(10))).map((key) => (
