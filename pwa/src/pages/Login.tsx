@@ -13,7 +13,7 @@ export function Login() {
 					setUser({
 						loggedIn: true,
 						name: "Edaz",
-						token: "ligma1000",
+						token: "ligma10000",
 					})
 				}
 				variant="outlined"

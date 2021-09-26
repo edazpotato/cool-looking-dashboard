@@ -20,37 +20,51 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 			...fetchArgs,
 			headers: {
 				"X-Clearance": token
-					? `Gigachad. Proof: ${token}`
+					? `Absolute lad. Proof: ${token}.`
 					: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
 				"Content-Type": "application/json",
 				...fetchArgs?.headers,
 			},
 		})
-			.catch((error) => {
-				setError(error + "");
+			.catch((err) => {
+				setError(err);
 				setLoading(false);
 			})
 			.then((res) => {
-				if (res?.ok) {
-					return res.json();
+				if (res) {
+					if (!res.ok) {
+						setError("Request not OK :(");
+					} else {
+						return res.json();
+					}
 				} else {
-					setError(`HTTP error: ${res?.status} ${res?.statusText}`);
+					setError("Invalid responce received :(");
 					setLoading(false);
 				}
 			})
-			.catch((error) => {
-				setError(error + "");
+			.catch((err) => {
+				setError(err);
 				setLoading(false);
 			})
 			.then((data) => {
-				if (data.data) {
-					setData(data.data);
-				} else if (data.error) {
-					setError(data.error);
-				} else if (data.detail) {
-					setError(data.detail.msg ? data.detail.msg : data.detail);
+				if (data) {
+					if (data.error || data.detail) {
+						setError(
+							data.detail
+								? data.detail.msg
+									? data.detail.msg
+									: data.detail
+								: "Unknown error."
+						);
+						setLoading(false);
+					} else {
+						setData(data);
+						setLoading(false);
+					}
+				} else {
+					setError("Invalid response body received.");
+					setLoading(false);
 				}
-				setLoading(false);
 			});
 	}, [endpoint, fetchArgs, token]);
 
@@ -66,14 +80,52 @@ export async function callAPI(
 	token?: string,
 	fetchArgs?: any
 ) {
-	return fetch(`/api/${endpoint}`, {
-		...fetchArgs,
-		headers: {
-			"X-Clearance": token
-				? `Gigachad. Proof: ${token}`
-				: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
-			"Content-Type": "application/json",
-			...fetchArgs?.headers,
-		},
-	}).then((res) => res.json());
+	const promise = new Promise<any>((resolve, reject) => {
+		fetch(`/api/${endpoint}`, {
+			...fetchArgs,
+			headers: {
+				"X-Clearance": token
+					? `Gigachad. Proof: ${token}`
+					: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
+				"Content-Type": "application/json",
+				...fetchArgs?.headers,
+			},
+		})
+			.catch((err) => {
+				reject(err);
+			})
+			.then((res) => {
+				if (res) {
+					if (!res.ok) {
+						reject("Request not OK :(");
+					} else {
+						return res.json();
+					}
+				} else {
+					reject("Invalid responce received :(");
+				}
+			})
+			.catch((err) => {
+				reject(err);
+			})
+			.then((data) => {
+				if (data) {
+					if (data.error || data.detail) {
+						reject(
+							data.detail
+								? data.detail.msg
+									? data.detail.msg
+									: data.detail
+								: "Unknown error."
+						);
+					} else {
+						resolve(data);
+					}
+				} else {
+					reject("Invalid response body received.");
+				}
+			});
+	});
+
+	return promise;
 }

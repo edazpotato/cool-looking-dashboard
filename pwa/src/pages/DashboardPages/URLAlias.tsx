@@ -157,15 +157,13 @@ export function URLAlias() {
 											{
 												method: "DELETE",
 											}
-										).then((data) => {
-											// console.log(data);
-											if (data.error === false) {
-												console.log(data.error);
+										)
+											.catch(console.warn)
+											.then(() => {
 												setEditDialogOpen(false);
 												setCurrentAlias(null);
 												makeRequest();
-											}
-										});
+											});
 									}
 								}}
 							>
@@ -275,15 +273,13 @@ export function URLAlias() {
 												currentAlias.meta.colour,
 										}),
 									}
-								).then((data) => {
-									// console.log(data);
-									if (data.error === false) {
-										console.log(data.error);
+								)
+									.catch(console.warn)
+									.then(() => {
 										setEditDialogOpen(false);
 										setCurrentAlias(null);
 										makeRequest();
-									}
-								});
+									});
 							}
 						}}
 					>
@@ -369,12 +365,12 @@ export function URLAlias() {
 												? form["meta_colour"].value
 												: null,
 										}),
-									}).then((res) => {
-										if (res.error === false) {
+									})
+										.catch(console.warn)
+										.then(() => {
 											setNewAliasDialogOpen(false);
 											makeRequest();
-										}
-									});
+										});
 							}}
 						>
 							Create
