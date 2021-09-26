@@ -23,7 +23,7 @@ import { useContext, useRef, useState } from "react";
 
 import { UserContext } from "../../data";
 
-interface URLAlias {
+interface URLAliasType {
 	canonical_url: string;
 	created: number;
 	id: number;
@@ -46,10 +46,10 @@ export function URLAlias() {
 		user.loggedIn ? user.token : undefined
 	);
 	const { error, loading, makeRequest } = apiCall;
-	const data = apiCall.data as URLAlias[];
+	const data = apiCall.data as URLAliasType[];
 
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
-	const [currentAlias, setCurrentAlias] = useState<null | URLAlias>(null);
+	const [currentAlias, setCurrentAlias] = useState<null | URLAliasType>(null);
 	const [newAliasDialogOpen, setNewAliasDialogOpen] = useState(false);
 	const formRef = useRef<any>(null);
 

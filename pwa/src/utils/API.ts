@@ -1,4 +1,4 @@
-import { useDebugValue, useEffect, useState } from "react";
+import { useCallback, useDebugValue, useEffect, useState } from "react";
 
 export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 	const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 			: "Successfully loaded data!"
 	);
 
-	function makeRequest() {
+	const makeRequest = useCallback(() => {
 		setLoading(true);
 		setError(false);
 		fetch(`/api/${endpoint}`, {
@@ -52,11 +52,11 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 				}
 				setLoading(false);
 			});
-	}
+	}, [endpoint, fetchArgs, token]);
 
 	useEffect(() => {
 		makeRequest();
-	}, [endpoint, token, fetchArgs]);
+	}, [endpoint, token, fetchArgs, makeRequest]);
 
 	return { loading, error, data, makeRequest, setData };
 }

@@ -15,7 +15,7 @@ import { UserContext } from "../data";
 const drawerWidth = 300;
 
 export function Dashboard() {
-	const [user, setUser] = useContext(UserContext);
+	const [user] = useContext(UserContext);
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);

@@ -1,5 +1,5 @@
-import { Box, Stack } from "@mui/material";
 import { Component, ErrorInfo, ReactNode } from "react";
+import { Stack, Typography } from "@mui/material";
 
 interface ErrorBoundaryState {
 	error: null | Error;
@@ -33,10 +33,14 @@ export class ErrorBoundary extends Component<
 			// You can render any custom fallback UI
 			return (
 				<Stack>
-					<h1>Something went wrong.</h1>
-					{this.state.error && this.state.error.toString()}
-					<br />
-					{this.state.errorInfo.componentStack}
+					<Typography variant="h4">Something went wrong.</Typography>
+					<Typography variant="subtitle1">
+						{this.state.error && this.state.error.toString()}
+					</Typography>
+
+					<Typography variant="body1">
+						{this.state.errorInfo.componentStack}
+					</Typography>
 				</Stack>
 			);
 		}
