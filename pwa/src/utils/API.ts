@@ -48,7 +48,7 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 				} else if (data.error) {
 					setError(data.error);
 				} else if (data.detail) {
-					setError(data.detail?.msg);
+					setError(data.detail.msg ? data.detail.msg : data.detail);
 				}
 				setLoading(false);
 			});
