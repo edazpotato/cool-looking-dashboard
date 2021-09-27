@@ -1,9 +1,18 @@
-import { useCallback, useDebugValue, useEffect, useState } from "react";
+import {
+	useCallback,
+	useContext,
+	useDebugValue,
+	useEffect,
+	useState,
+} from "react";
+
+import { UserContext } from "../data";
 
 export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<boolean | string>(false);
 	const [data, setData] = useState<any>(null);
+	const [user, setUser] = useContext(UserContext);
 
 	useDebugValue(
 		loading
@@ -33,6 +42,10 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 			.then((res) => {
 				if (res) {
 					if (!res.ok) {
+						if (res.status === 406 && user.loggedIn) {
+							clearTimeout(user.autoLogOutTimeout);
+							setUser({ loggedIn: false });
+						}
 						setError("Request not OK :(");
 					} else {
 						return res.json();

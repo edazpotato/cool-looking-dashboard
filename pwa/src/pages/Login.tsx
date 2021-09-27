@@ -25,13 +25,6 @@ export function Login() {
 						.catch(console.warn)
 						.then((res) => {
 							const data = res.data;
-							console.log(
-								new Date(
-									data[
-										"that_expires_at_this_unix_timestamp"
-									] * 1000
-								).getTime() - Date.now()
-							);
 							setUser({
 								loggedIn: true,
 								name: data["username"],
@@ -40,6 +33,14 @@ export function Login() {
 									data[
 										"that_expires_at_this_unix_timestamp"
 									] * 1000
+								),
+								autoLogOutTimeout: setTimeout(
+									() => setUser({ loggedIn: false }),
+									new Date(
+										data[
+											"that_expires_at_this_unix_timestamp"
+										] * 1000
+									).getTime() - Date.now()
 								),
 							});
 						});

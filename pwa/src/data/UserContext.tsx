@@ -4,7 +4,13 @@ export type UserData =
 	| {
 			loggedIn: false;
 	  }
-	| { loggedIn: true; name: string; token: string; tokenEpiresAt: number };
+	| {
+			loggedIn: true;
+			name: string;
+			token: string;
+			tokenEpiresAt: number;
+			autoLogOutTimeout: ReturnType<typeof setTimeout>;
+	  };
 
 export const defaultUserContext: UserData = { loggedIn: false };
 export const UserContext = createContext<

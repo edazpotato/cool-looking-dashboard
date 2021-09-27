@@ -43,7 +43,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
-	const [, setUser] = useContext(UserContext);
+	const [user, setUser] = useContext(UserContext);
 	const theme = useTheme();
 	const onMobile = !useMediaQuery(theme.breakpoints.up("md"));
 
@@ -90,7 +90,12 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 			</List>
 			<Button
 				sx={{ mt: "auto" }}
-				onClick={() => setUser({ loggedIn: false })}
+				onClick={() => {
+					if (user.loggedIn) {
+						clearTimeout(user.autoLogOutTimeout);
+						setUser({ loggedIn: false });
+					}
+				}}
 			>
 				Log out
 			</Button>
