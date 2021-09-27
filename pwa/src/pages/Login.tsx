@@ -23,10 +23,15 @@ export function Login() {
 						}
 					)
 						.catch(console.warn)
-						.then((data) => {
-							setTimeout(() => {
-								setUser({ loggedIn: false });
-							}, Math.floor(data["that_expires_at_this_unix_timestamp"] - Date.now()));
+						.then((res) => {
+							const data = res.data;
+							console.log(
+								new Date(
+									data[
+										"that_expires_at_this_unix_timestamp"
+									] * 1000
+								).getTime() - Date.now()
+							);
 							setUser({
 								loggedIn: true,
 								name: data["username"],

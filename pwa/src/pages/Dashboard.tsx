@@ -1,6 +1,9 @@
 import {
 	Box,
 	Button,
+	IconButton,
+	Stack,
+	Toolbar,
 	Typography,
 	useMediaQuery,
 	useTheme,
@@ -9,6 +12,7 @@ import { ErrorBoundary, Sidebar } from "../components";
 import { Route, Switch as RouterSwitch } from "react-router-dom";
 import { useContext, useState } from "react";
 
+import MenuIcon from "@mui/icons-material/Menu";
 import { URLAlias } from "./DashboardPages";
 import { UserContext } from "../data";
 
@@ -21,9 +25,8 @@ export function Dashboard() {
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
 	return user.loggedIn ? (
-		<Box
+		<Stack
 			sx={{
-				display: "flex",
 				pl: onDesktop ? `${drawerWidth}px` : undefined,
 			}}
 		>
@@ -33,23 +36,26 @@ export function Dashboard() {
 				onOpen={() => setMobileSidebarOpen(true)}
 				width={drawerWidth}
 			/>
+			{!onDesktop && (
+				<IconButton
+					onClick={() => setMobileSidebarOpen(true)}
+					sx={{
+						position: "fixed",
+						top: (theme) => theme.spacing(2),
+						left: (theme) => theme.spacing(2),
+						zIndex: (theme) => theme.zIndex.drawer - 1,
+					}}
+				>
+					<MenuIcon />
+				</IconButton>
+			)}
 			<ErrorBoundary>
 				<RouterSwitch>
 					<Route path="/" exact>
+						<Toolbar />
 						<Typography>
 							{user.name}, you are logged in!{" "}
 						</Typography>
-						{!onDesktop && (
-							<Box>
-								<Button
-									onClick={() => setMobileSidebarOpen(true)}
-									variant="contained"
-									color="secondary"
-								>
-									Open sidebar
-								</Button>
-							</Box>
-						)}
 					</Route>
 					<Route path="/url-alias">
 						<URLAlias />
@@ -74,7 +80,7 @@ export function Dashboard() {
 					</Route>
 				</RouterSwitch>
 			</ErrorBoundary>
-		</Box>
+		</Stack>
 	) : (
 		<Typography>
 			Something is very broken. The dashboard is trying to render, but you
