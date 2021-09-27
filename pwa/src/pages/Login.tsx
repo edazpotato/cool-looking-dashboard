@@ -17,7 +17,7 @@ export function Login() {
 						{
 							body: JSON.stringify({
 								mode: "begging",
-								data: { username: "edaz" },
+								data: { username: "Edaz" },
 							}),
 							method: "POST",
 						}
@@ -36,6 +36,11 @@ export function Login() {
 								loggedIn: true,
 								name: data["username"],
 								token: data["your_shiny_new_token"],
+								tokenEpiresAt: Math.floor(
+									data[
+										"that_expires_at_this_unix_timestamp"
+									] * 1000
+								),
 							});
 						});
 				}}

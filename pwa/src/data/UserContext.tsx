@@ -4,7 +4,7 @@ export type UserData =
 	| {
 			loggedIn: false;
 	  }
-	| { loggedIn: true; name: string; token: string };
+	| { loggedIn: true; name: string; token: string; tokenEpiresAt: number };
 
 export const defaultUserContext: UserData = { loggedIn: false };
 export const UserContext = createContext<

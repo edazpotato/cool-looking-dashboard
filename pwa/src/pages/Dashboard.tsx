@@ -54,7 +54,9 @@ export function Dashboard() {
 					<Route path="/" exact>
 						<Toolbar />
 						<Typography>
-							{user.name}, you are logged in!{" "}
+							{user.name}, you are logged in! Your current session
+							expires at{" "}
+							{new Date(user.tokenEpiresAt).toLocaleTimeString()}.
 						</Typography>
 					</Route>
 					<Route path="/url-alias">
