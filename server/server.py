@@ -2,7 +2,7 @@ import sqlite3
 from fastapi import FastAPI, APIRouter, Request, Response, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-from typing import Optional
+from typing import Optional, Union, Tuple
 from pydantic import BaseModel
 import time
 import re
@@ -25,7 +25,7 @@ not_sus_website = "https://wikipedia.org/"
 
 tokens = []
 
-async def get_clearance_level(req: Request) -> int:
+async def get_clearance_level(req: Request, returnToken = False) -> Union[int, Tuple[int, str]]:
 	if req.headers["X-Clearance"]:
 		clearance = req.headers["X-Clearance"]
 		level_1_auth_regex = re.compile("^(?:Nerd|Peasant)\. No (?:doumentation|papers) found\.(?: Reccomended treatment: .+\.)*$")
@@ -36,6 +36,8 @@ async def get_clearance_level(req: Request) -> int:
 			for token in tokens:
 				if token["actual_token"] == level_3_auth_regex_match.group(1):
 					if token["expires_at"] > time.time():
+						if returnToken == True:
+							return (3, token["actual_token"])
 						return 3
 					else:
 						tokens.remove(token)
@@ -62,6 +64,22 @@ async def get_auth_token(request: Request, response: Response, body: NewToken):
 	token_expires_at = time.time() + 60 * 60
 	tokens.append({"actual_token": token, "expires_at": token_expires_at})
 	return {"error": False, "data": {"your_shiny_new_token": token, "that_expires_at_this_unix_timestamp": token_expires_at, "username": body.data.username }}
+
+@api.delete("/auth/please-revoke-my-clearance")
+async def logout(request: Request, response: Response):
+	level = await get_clearance_level(request, returnToken=True)
+	print(level)
+	if isinstance(level, tuple):
+		level, actualToken = level
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You cant't revoke your clearance if you don't have any to begin with."}
+	if actualToken:
+		for token in tokens:
+			if token["actual_token"] == actualToken:
+				tokens.remove(token)
+				return {"error": False}
+	return {"error": True, "detail": "Token not found. This should never happen."}
 
 @api.get("/url-aliases")
 async def get_all_url_aliases(request: Request, response: Response):

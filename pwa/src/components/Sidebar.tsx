@@ -20,6 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import HomeIcon from "@mui/icons-material/Home";
 import LinkIcon from "@mui/icons-material/Link";
 import { UserContext } from "../data";
+import { logout } from "../utils";
 import { useHistory } from "react-router-dom";
 
 const pages: { text: string; slug: string; icon: JSX.Element }[] = [
@@ -88,15 +89,7 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 					</ListItem>
 				))}
 			</List>
-			<Button
-				sx={{ mt: "auto" }}
-				onClick={() => {
-					if (user.loggedIn) {
-						clearTimeout(user.autoLogOutTimeout);
-						setUser({ loggedIn: false });
-					}
-				}}
-			>
+			<Button sx={{ mt: "auto" }} onClick={() => logout(user, setUser)}>
 				Log out
 			</Button>
 		</Stack>

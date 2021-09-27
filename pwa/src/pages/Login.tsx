@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
+import { callAPI, logout } from "../utils";
 
 import { UserContext } from "../data";
-import { callAPI } from "../utils";
 import { useContext } from "react";
 
 export function Login() {
@@ -35,7 +35,7 @@ export function Login() {
 									] * 1000
 								),
 								autoLogOutTimeout: setTimeout(
-									() => setUser({ loggedIn: false }),
+									() => logout(user, setUser),
 									new Date(
 										data[
 											"that_expires_at_this_unix_timestamp"

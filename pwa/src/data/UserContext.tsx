@@ -11,11 +11,15 @@ export type UserData =
 			tokenEpiresAt: number;
 			autoLogOutTimeout: ReturnType<typeof setTimeout>;
 	  };
+export type SetUserFunction = (
+	thing: ((oldState: UserData) => UserData) | UserData
+) => any;
 
 export const defaultUserContext: UserData = { loggedIn: false };
-export const UserContext = createContext<
-	[UserData, (thing: ((oldState: UserData) => UserData) | UserData) => any]
->([defaultUserContext, () => {}]);
+export const UserContext = createContext<[UserData, SetUserFunction]>([
+	defaultUserContext,
+	() => {},
+]);
 
 interface UserContextProviderProps {
 	children: ReactChild | ReactChild[];

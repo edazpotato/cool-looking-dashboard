@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import { UserContext } from "../data";
+import { logout } from "../utils";
 
 export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 	const [loading, setLoading] = useState(true);
@@ -42,9 +43,8 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 			.then((res) => {
 				if (res) {
 					if (!res.ok) {
-						if (res.status === 406 && user.loggedIn) {
-							clearTimeout(user.autoLogOutTimeout);
-							setUser({ loggedIn: false });
+						if (res.status === 406) {
+							logout(user, setUser);
 						}
 						setError("Request not OK :(");
 					} else {
@@ -79,7 +79,7 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 					setLoading(false);
 				}
 			});
-	}, [endpoint, fetchArgs, token]);
+	}, [endpoint, fetchArgs, token, user, setUser]);
 
 	useEffect(() => {
 		makeRequest();
@@ -98,7 +98,7 @@ export async function callAPI(
 			...fetchArgs,
 			headers: {
 				"X-Clearance": token
-					? `Gigachad. Proof: ${token}`
+					? `Gigachad. Proof: ${token}.`
 					: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
 				"Content-Type": "application/json",
 				...fetchArgs?.headers,
