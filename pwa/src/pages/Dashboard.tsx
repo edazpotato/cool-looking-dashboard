@@ -52,7 +52,7 @@ export function Dashboard() {
 			<ErrorBoundary>
 				<RouterSwitch>
 					<Route path="/" exact>
-						<Toolbar />
+						{!onDesktop && <Toolbar />}
 						<Typography>
 							{user.name}, you are logged in! Your current session
 							expires at{" "}
