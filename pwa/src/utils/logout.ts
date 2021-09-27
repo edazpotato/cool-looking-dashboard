@@ -8,10 +8,9 @@ export function logout(user: UserData, setUser: SetUserFunction) {
 			method: "DELETE",
 		})
 			.catch(console.warn)
-			.then(() => {
-				clearTimeout(user.autoLogOutTimeout);
-				setUser({ loggedIn: false });
-			});
+			.then(() => console.info("Revoked token"));
+		clearTimeout(user.autoLogOutTimeout);
+		setUser({ loggedIn: false });
 		return apiCall;
 	}
 }
