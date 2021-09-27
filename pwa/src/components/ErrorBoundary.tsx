@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack, Toolbar, Typography } from "@mui/material";
 
 interface ErrorBoundaryState {
 	error: null | Error;
@@ -33,6 +33,7 @@ export class ErrorBoundary extends Component<
 			// You can render any custom fallback UI
 			return (
 				<Stack>
+					<Toolbar />
 					<Typography variant="h4">Something went wrong.</Typography>
 					<Typography variant="subtitle1">
 						{this.state.error && this.state.error.toString()}

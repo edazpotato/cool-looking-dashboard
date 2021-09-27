@@ -45,8 +45,11 @@ export function URLAlias() {
 		"url-aliases",
 		user.loggedIn ? user.token : undefined
 	);
-	const { error, loading, makeRequest } = apiCall;
-	const data = apiCall.data as URLAliasType[];
+	const { error, loading, makeRequest, data } = apiCall;
+	const aliasData =
+		data && Array.isArray(data.data)
+			? (data.data as URLAliasType[])
+			: undefined;
 
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [currentAlias, setCurrentAlias] = useState<null | URLAliasType>(null);
@@ -100,8 +103,8 @@ export function URLAlias() {
 							{typeof error === "string" ? " " + error : null}
 						</Alert>
 					</ListItem>
-				) : (
-					data.map((item) => (
+				) : aliasData ? (
+					aliasData.map((item) => (
 						<ListItem
 							key={item.id}
 							button
@@ -118,6 +121,10 @@ export function URLAlias() {
 							/>
 						</ListItem>
 					))
+				) : (
+					<Typography>
+						data.data is undefiend for some reason
+					</Typography>
 				)}
 			</List>
 			<Dialog
@@ -233,7 +240,7 @@ export function URLAlias() {
 						/>
 						<TextField
 							type="color"
-							sx={{ minWidth: "40%" }}
+							sx={{ minWidth: "223px" }}
 							label="Meta colour"
 							value={currentAlias?.meta.colour || ""}
 							onChange={(e) =>
@@ -327,7 +334,7 @@ export function URLAlias() {
 							/>
 							<TextField
 								type="color"
-								sx={{ minWidth: "40%" }}
+								sx={{ minWidth: "223px" }}
 								label="Meta colour"
 								name="meta_colour"
 							/>
