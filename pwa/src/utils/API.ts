@@ -8,12 +8,19 @@ import {
 
 import { UserContext } from "../data";
 import { logout } from "../utils";
+import { useSnackbar } from "notistack";
 
-export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
+export function useAPI(
+	endpoint: string,
+	token?: string,
+	fetchArgs?: any,
+	showSnackbarOnError: boolean = true
+) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<boolean | string>(false);
 	const [data, setData] = useState<any>(null);
 	const [user, setUser] = useContext(UserContext);
+	const { enqueueSnackbar } = useSnackbar();
 
 	useDebugValue(
 		loading
@@ -37,6 +44,8 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 			},
 		})
 			.catch((err) => {
+				showSnackbarOnError &&
+					enqueueSnackbar(err, { variant: "error" });
 				setError(err);
 				setLoading(false);
 			})
@@ -46,40 +55,60 @@ export function useAPI(endpoint: string, token?: string, fetchArgs?: any) {
 						if (res.status === 406) {
 							logout(user, setUser);
 						}
-						setError("Request not OK :(");
+						const err = "Request not OK :(";
+						setError(err);
+						showSnackbarOnError &&
+							enqueueSnackbar(err, { variant: "error" });
 					} else {
 						return res.json();
 					}
 				} else {
-					setError("Invalid responce received :(");
+					const err = "Invalid response received :(";
+					showSnackbarOnError &&
+						enqueueSnackbar(err, { variant: "error" });
+					setError(err);
 					setLoading(false);
 				}
 			})
 			.catch((err) => {
+				showSnackbarOnError &&
+					enqueueSnackbar(err, { variant: "error" });
 				setError(err);
 				setLoading(false);
 			})
 			.then((data) => {
 				if (data) {
 					if (data.error || data.detail) {
-						setError(
-							data.detail
+						const err = data.detail
+							? data.detail.msg
 								? data.detail.msg
-									? data.detail.msg
-									: data.detail
-								: "Unknown error."
-						);
+								: data.detail
+							: "Unknown error.";
+						showSnackbarOnError &&
+							enqueueSnackbar(err, { variant: "error" });
+						setError(err);
 						setLoading(false);
 					} else {
 						setData(data);
 						setLoading(false);
 					}
 				} else {
-					setError("Invalid response body received.");
+					const err = "Invalid response body received.";
+					showSnackbarOnError &&
+						enqueueSnackbar(err, { variant: "error" });
+					setError(err);
 					setLoading(false);
 				}
 			});
-	}, [endpoint, fetchArgs, token, user, setUser]);
+	}, [
+		endpoint,
+		fetchArgs,
+		token,
+		user,
+		setUser,
+		enqueueSnackbar,
+		showSnackbarOnError,
+	]);
 
 	useEffect(() => {
 		makeRequest();

@@ -1,7 +1,9 @@
 import { Dashboard, Login } from "./pages";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material";
 
 import { HashRouter as Router } from "react-router-dom";
+import { SlideTransition } from "./utils";
+import { SnackbarProvider } from "notistack";
 import { UserContext } from "./data";
 import { useContext } from "react";
 
@@ -48,7 +50,15 @@ export default function App() {
 
 	return (
 		<ThemeProvider theme={theme}>
-			<Router>{user.loggedIn ? <Dashboard /> : <Login />}</Router>
+			<SnackbarProvider
+				anchorOrigin={{
+					vertical: "bottom",
+					horizontal: "left",
+				}}
+				TransitionComponent={SlideTransition}
+			>
+				<Router>{user.loggedIn ? <Dashboard /> : <Login />}</Router>
+			</SnackbarProvider>
 		</ThemeProvider>
 	);
 }
