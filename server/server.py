@@ -1,12 +1,14 @@
-import sqlite3
 from fastapi import FastAPI, APIRouter, Request, Response, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from typing import Optional, Union, Tuple
 from pydantic import BaseModel
+import secrets
+import sqlite3
 import time
 import re
-import secrets
+import os
 
 class NewURLAlias(BaseModel):
 	slug: str
@@ -21,12 +23,14 @@ class NewToken(BaseModel):
 	mode: str
 	data: NewTokenData
 
+html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
+
 not_sus_website = "https://wikipedia.org/"
 
 tokens = []
 
 async def get_clearance_level(req: Request, returnToken = False) -> Union[int, Tuple[int, str]]:
-	if req.headers["X-Clearance"]:
+	if "X-Clearance" in req.headers:
 		clearance = req.headers["X-Clearance"]
 		level_1_auth_regex = re.compile("^(?:Nerd|Peasant)\. No (?:doumentation|papers) found\.(?: Reccomended treatment: .+\.)*$")
 		level_3_auth_regex = re.compile("^(?:Gigachad|Absolute lad)\. Proof: (.+)\.$")
@@ -205,3 +209,12 @@ async def go_to_alias(request: Request, slug: str):
 	except Exception as e:
 		# print(e)
 		return RedirectResponse(not_sus_website)
+
+
+
+# Make the base route return index.html
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return html_index_file
+
+app.mount("/", StaticFiles(directory="../pwa/build"), name="static")
