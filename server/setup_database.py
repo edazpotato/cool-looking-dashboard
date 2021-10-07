@@ -1,6 +1,12 @@
 import sqlite3
+import os
 
-db = sqlite3.connect("datameridian.db")
+db_path = "db"
+
+if (not os.path.exists(db_path)):
+	os.makedirs(db_path)
+
+db = sqlite3.connect(f"{db_path}/datameridian.db")
 cursor = db.cursor()
 
 try:

@@ -49,7 +49,7 @@ async def get_clearance_level(req: Request, returnToken = False) -> Union[int, T
 			return 1
 	return 0
 
-db = sqlite3.connect("datameridian.db")
+db = sqlite3.connect("db/datameridian.db")
 cursor = db.cursor()
 
 templates = Jinja2Templates(directory="templates")

@@ -1,7 +1,7 @@
 # Whatever
 __pycache__
 __pycache__/
-*.db
+datameridian.db
 *.log
 # build output
 dist

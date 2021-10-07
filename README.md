@@ -8,7 +8,10 @@ There are two ways to deploy this app. You can use docker, or run it on a normal
 
 ### Running it with docker
 
-I think you just need to install Docker, build the image with `docker build -t cl-dash .`, and then run `docker run -dp 80:80 cl-dash` to start it.
+1. Install Docker.
+2. Build the image: `docker build -t cl-dash .`.
+3. Create a docker volume to store the sqlite database in: `docker volume create cl-dash-db`.
+4. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash`.
 
 ### Running it on a normal server server
 
