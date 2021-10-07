@@ -12,18 +12,18 @@ There are two ways to deploy this app. You can use docker, or run it on a normal
 
 1. Install Docker.
 2. Build the image: `docker build -t cl-dash .`. (This can take a very long time.)
-3. Create a docker volume to store the Sqlite database in: `docker volume create cl-dash-db`.
+3. Create a docker volume to store the SQLite database in: `docker volume create cl-dash-db`.
 4. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash`.
 
 #### Using a pre-built image
 
-I'll try and remember to publish pre-built images to the [dockerhub page](https://hub.docker.com/repository/docker/edaz/cl-dash), but I'll probably forget sometimes.
+I'll try and remember to publish pre-built images to the [dockerhub page](https://hub.docker.com/repository/docker/edaz/cl-dash) but I'll probably forget sometimes, so I highly recommend building it yourself.
 
 > Note that these examples use `0.1.0` as the version. This won't be kept up-to-date, so make sure to use the latest version on the [dockerhub page](https://hub.docker.com/repository/docker/edaz/cl-dash).
 
 1. Install Docker.
 2. Pull the image: `docker image pull edaz/cl-dash:0.1.0`.
-3. Create a docker volume to store the Sqlite database in: `docker volume create cl-dash-db`.
+3. Create a docker volume to store the SQLite database in: `docker volume create cl-dash-db`.
 4. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash:0.1.0`.
 
 ### Running it on a normal server server
