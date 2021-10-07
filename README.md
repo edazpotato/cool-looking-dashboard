@@ -4,6 +4,14 @@ It'll monitor servers, keep track of todos and notes, and have a web-based ssh t
 
 ## Deployment
 
+There are two ways to deploy this app. You can use docker, or run it on a normal server. Both will start the app on port 80. For SSL, just stick it behind Cloudflare.
+
+### Running it with docker
+
+I think you just need to install Docker, build the image with `docker build -t cl-dash .`, and then run `docker run -dp 80:80 cl-dash` to start it.
+
+### Running it on a normal server server
+
 1. Install the latest build of NodeJS 16.
 2. Install dependencies for building the PWA.
 

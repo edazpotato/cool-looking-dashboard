@@ -1,0 +1,4 @@
+node_modules/
+datameridian.db
+__pycache__/
+build/
