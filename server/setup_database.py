@@ -64,7 +64,7 @@ try:
 	cursor.execute("""
 	CREATE TABLE "todo_items" (
 		"id"	INTEGER NOT NULL UNIQUE,
-		"completed"	TEXT NOT NULL,
+		"completed"	INTEGER NOT NULL,
 		"content"	INTEGER NOT NULL,
 		"todo_list_id"	INTEGER NOT NULL,
 		"added_at"	INTEGER NOT NULL,

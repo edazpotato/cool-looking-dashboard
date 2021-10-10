@@ -104,23 +104,32 @@ export function URLAlias() {
 						</Alert>
 					</ListItem>
 				) : aliasData ? (
-					aliasData.map((item) => (
-						<ListItem
-							key={item.id}
-							button
-							onClick={() => {
-								setCurrentAlias(item);
-								setEditDialogOpen(true);
-							}}
-						>
-							<ListItemText
-								primary={`/a/${item.slug}`}
-								secondary={`${item.uses} hit${
-									item.uses === 1 ? "" : "s"
-								} redirected to ${item.canonical_url}`}
-							/>
-						</ListItem>
-					))
+					<>
+						{aliasData.length < 1 && (
+							<ListItem>
+								<Alert severity="info">
+									There aren{"'"}t any URL Aliases.
+								</Alert>
+							</ListItem>
+						)}
+						{aliasData.map((item) => (
+							<ListItem
+								key={item.id}
+								button
+								onClick={() => {
+									setCurrentAlias(item);
+									setEditDialogOpen(true);
+								}}
+							>
+								<ListItemText
+									primary={`/a/${item.slug}`}
+									secondary={`${item.uses} hit${
+										item.uses === 1 ? "" : "s"
+									} redirected to ${item.canonical_url}`}
+								/>
+							</ListItem>
+						))}
+					</>
 				) : (
 					<Typography>
 						data.data is undefiend for some reason

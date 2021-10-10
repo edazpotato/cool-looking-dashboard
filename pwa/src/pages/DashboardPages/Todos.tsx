@@ -1,5 +1,7 @@
 import {
+	Alert,
 	Button,
+	Checkbox,
 	Dialog,
 	DialogActions,
 	DialogContent,
@@ -22,6 +24,7 @@ import { callAPI, useAPI } from "../../utils";
 import { useContext, useState } from "react";
 
 import AddTaskIcon from "@mui/icons-material/AddTaskSharp";
+import DeleteIcon from "@mui/icons-material/DeleteSharp";
 import DoneIcon from "@mui/icons-material/DoneSharp";
 import EditIcon from "@mui/icons-material/EditSharp";
 import { UserContext } from "../../data";
@@ -79,13 +82,22 @@ export function Todos() {
 					An error occurred while loading the todo lists: {error}
 				</Typography>
 			) : (
-				data.data.map((todoList: TodoListType) => (
-					<TodoList
-						key={todoList.id}
-						data={todoList}
-						setFetchData={setData}
-					/>
-				))
+				<>
+					{data.data.length < 1 && (
+						<ListItem>
+							<Alert severity="info">
+								There aren{"'"}t any todo lists.
+							</Alert>
+						</ListItem>
+					)}
+					{data.data.map((todoList: TodoListType) => (
+						<TodoList
+							key={todoList.id}
+							data={todoList}
+							setFetchData={setData}
+						/>
+					))}
+				</>
 			)}
 			<NewTodolistDialog
 				onDesktop={onDesktop}
@@ -110,13 +122,12 @@ interface TodoListProps {
 
 function TodoList({ data, setFetchData }: TodoListProps) {
 	const [user] = useContext(UserContext);
-	const { enqueueSnackbar } = useSnackbar();
 	const [editingTitle, setEditingTitle] = useState(false);
 	const [tempTitle, setTempTitle] = useState(data.title);
 	const [newTodoItemText, setNewTodoItemText] = useState("");
 
 	return (
-		<Paper sx={{ p: 4, m: 4 }}>
+		<Paper sx={{ p: 4, m: 4, overflow: "auto" }}>
 			<Stack>
 				<Stack direction="row">
 					{editingTitle ? (
@@ -130,9 +141,12 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 							}}
 							value={tempTitle}
 							onChange={(e) => setTempTitle(e.target.value)}
+							autoComplete="off"
 						/>
 					) : (
-						<Typography variant="h4">{data.title}</Typography>
+						<Typography variant="h4">
+							{data.title.slice(0, 5)}
+						</Typography>
 					)}
 					<IconButton
 						sx={{ ml: 2 }}
@@ -181,15 +195,41 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 					>
 						{editingTitle ? <DoneIcon /> : <EditIcon />}
 					</IconButton>
+					<Button
+						sx={{ ml: "auto" }}
+						color="error"
+						variant="contained"
+						onClick={() => {
+							callAPI(
+								`todos/${data.id}`,
+								user.loggedIn ? user.token : undefined,
+								{ method: "DELETE" }
+							)
+								.then((res) => {
+									setFetchData((oldFetchData: any) => ({
+										...oldFetchData,
+										data: oldFetchData.data.filter(
+											(thing: TodoListType) =>
+												thing.id !== data.id
+										),
+									}));
+								})
+								.catch(console.warn);
+						}}
+					>
+						Delete
+					</Button>
 				</Stack>
 
-				<Stack direction="row">
+				<Stack direction="row" sx={{ mt: 4 }}>
 					<TextField
 						value={newTodoItemText}
 						onChange={(e) => setNewTodoItemText(e.target.value)}
 						sx={{ flex: "1" }}
 						label="New todo item"
 						variant="standard"
+						id={`new-todo-item-for-todo-list-${data.id}`}
+						autoComplete="off"
 					/>
 					<IconButton
 						disabled={newTodoItemText.length < 1}
@@ -210,6 +250,13 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 								.then((res) => {
 									console.log("e", res);
 									setFetchData((oldFetchData: any) => {
+										try {
+											document
+												.getElementById(
+													`new-todo-item-for-todo-list-${data.id}`
+												)
+												?.focus();
+										} catch {}
 										const d = {
 											...oldFetchData,
 											data: [
@@ -252,8 +299,20 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 					</IconButton>
 				</Stack>
 				<List sx={{ maxHeight: 250, overflowY: "auto" }}>
+					{data.todos.length < 1 && (
+						<ListItem>
+							<Alert severity="info">
+								There aren{"'"}t any items in this todo list.
+							</Alert>
+						</ListItem>
+					)}
 					{data.todos.map((todo) => (
-						<TodoListItem key={todo.id} data={todo} />
+						<TodoListItem
+							key={todo.id}
+							data={todo}
+							setFetchData={setFetchData}
+							todoListData={data}
+						/>
 					))}
 				</List>
 			</Stack>
@@ -263,13 +322,106 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 
 interface TodoListItemProps {
 	data: TodoListItemType;
+	todoListData: TodoListType;
+	setFetchData: any;
 }
 
-function TodoListItem({ data }: TodoListItemProps) {
+function TodoListItem({ data, setFetchData, todoListData }: TodoListItemProps) {
+	const [user] = useContext(UserContext);
+
 	return (
-		<ListItem sx={{ p: 0 }}>
-			<ListItemButton>
-				<ListItemText primary={data.content} />
+		<ListItem
+			sx={{ p: 0 }}
+			secondaryAction={
+				<IconButton
+					onClick={() => {
+						callAPI(
+							`todos/${todoListData.id}/${data.id}`,
+							user.loggedIn ? user.token : undefined,
+							{ method: "DELETE" }
+						)
+							.then((res) => {
+								setFetchData((oldFetchData: any) => ({
+									...oldFetchData,
+									data: [
+										{
+											...todoListData,
+											todos: todoListData.todos.filter(
+												(thing: TodoListItemType) =>
+													thing.id !== data.id
+											),
+										},
+										...oldFetchData.data.filter(
+											(thing: TodoListType) =>
+												thing.id !== todoListData.id
+										),
+									],
+								}));
+							})
+							.catch(console.warn);
+					}}
+					edge="end"
+				>
+					<DeleteIcon />
+				</IconButton>
+			}
+		>
+			<ListItemButton
+				onClick={() => {
+					callAPI(
+						`todos/${todoListData.id}/${data.id}`,
+						user.loggedIn ? user.token : undefined,
+						{
+							method: "PATCH",
+							body: JSON.stringify({
+								content: data.content,
+								completed: !data.completed,
+							}),
+						}
+					)
+						.then((res) => {
+							setFetchData((oldFetchData: any) => ({
+								...oldFetchData,
+								data: oldFetchData.data.map(
+									(thing: TodoListType) => {
+										if (thing.id !== todoListData.id)
+											return thing;
+										return {
+											...todoListData,
+											todos: todoListData.todos.map(
+												(todo: TodoListItemType) => {
+													if (todo.id !== data.id)
+														return todo;
+													return {
+														...data,
+														is_completed:
+															!data.is_completed,
+													};
+												}
+											),
+										};
+									}
+								),
+							}));
+						})
+						.catch(console.warn);
+				}}
+			>
+				<ListItemIcon>
+					<Checkbox
+						edge="start"
+						checked={data.is_completed}
+						tabIndex={-1}
+						disableRipple
+						inputProps={{
+							"aria-labelledby": `todolist-item-chckbox-label-${todoListData.id}-${data.id}`,
+						}}
+					/>
+				</ListItemIcon>
+				<ListItemText
+					id={`todolist-item-chckbox-label-${todoListData.id}-${data.id}`}
+					primary={data.content.slice(0, 20)}
+				/>
 			</ListItemButton>
 		</ListItem>
 	);
@@ -347,6 +499,7 @@ function NewTodolistDialog({
 										...data.data,
 									],
 								});
+								setName("");
 							})
 							.catch((err) => {
 								enqueueSnackbar(err);

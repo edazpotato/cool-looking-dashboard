@@ -95,7 +95,8 @@ async def get_all_url_aliases(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get information about all the url aliases."}
 	try:
 		aliases = []
-		for alias in cursor.execute("SELECT * FROM url_aliases ORDER BY uses DESC"):
+		db_aliases = cursor.execute("SELECT * FROM url_aliases ORDER BY uses DESC").fetchall()
+		for alias in db_aliases:
 			# print(alias)
 			aliases.append({
 				"id": alias[0],
@@ -248,15 +249,15 @@ async def get_all_todo_lists(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get all the todo lists."}
 	try:
 		todo_lists = []
-		cursor.execute("SELECT * FROM todo_lists ORDER BY updated_at DESC")
-		db_todo_lists = cursor.fetchall()
+		db_todo_lists = cursor.execute("SELECT * FROM todo_lists ORDER BY created_at DESC").fetchall()
 		for todo_list in db_todo_lists:
 			todo_items = []
-			for todo_item in cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY updated_at DESC", {"todo_list_id": todo_list[0]}):
+			db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at DESC", {"todo_list_id": todo_list[0]}).fetchall()
+			for todo_item in db_todo_items:
 				todo_items.append({
 					"id": todo_item[0],
-					"is_completed": bool(todo_item[1]),
-					"completed": bool(todo_item[5]),
+					"is_completed": True if todo_item[1] == 1 else False,
+					"completed": todo_item[5],
 					"content": todo_item[2],
 					"added": todo_item[4],
 					"updated": todo_item[5]
@@ -320,7 +321,7 @@ async def add_todo_list_item(request: Request, response: Response, todo_list_id:
 		cursor.execute("""INSERT INTO todo_items
 		(todo_list_id, completed, content, added_at, completed_at, updated_at)
 		values (:todo_list_id, :is_completed, :content, :added, :completed, :updated_at)""",
-		{"todo_list_id": todo_list_id, "is_completed": todo_item.completed, "content": todo_item.content, "added": time.time(), "completed": completed_at, "updated_at": time.time()})
+		{"todo_list_id": todo_list_id, "is_completed": 1 if todo_item.completed else 0, "content": todo_item.content, "added": time.time(), "completed": completed_at, "updated_at": time.time()})
 		db.commit()
 		cursor.execute("SELECT MAX(id) FROM todo_items")
 		new_todo_item = cursor.fetchone()
@@ -331,7 +332,7 @@ async def add_todo_list_item(request: Request, response: Response, todo_list_id:
 
 # Todo items
 @api.patch("/todos/{todo_list_id}/{todo_item_id}")
-async def edit_todo_list_item(request: Request, response: Response, todo_list: TodoList, todo_list_id: str, todo_item_id: str, todo_item: TodoListItem):
+async def edit_todo_list_item(request: Request, response: Response, todo_list_id: str, todo_item_id: str, todo_item: TodoListItem):
 	level = await get_clearance_level(request)
 	if level < 3:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
@@ -343,7 +344,7 @@ async def edit_todo_list_item(request: Request, response: Response, todo_list: T
 		cursor.execute("""UPDATE todo_items SET 
 		content=:content, completed=:is_completed, completed_at=:completed_at, updated_at=:updated_at
 		WHERE todo_list_id=:todo_list_id AND id=:todo_item_id""",
-			{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id, "content": todo_item.content, "is_completed": todo_item.completed, "completed_at": completed_at, "updated_at": time.time()})
+			{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id, "content": todo_item.content, "is_completed": 1 if todo_item.completed else 0, "completed_at": completed_at, "updated_at": time.time()})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
