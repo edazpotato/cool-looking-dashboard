@@ -56,6 +56,7 @@ export default function App() {
 					horizontal: "left",
 				}}
 				TransitionComponent={SlideTransition}
+				variant="error"
 			>
 				<Router>{user.loggedIn ? <Dashboard /> : <Login />}</Router>
 			</SnackbarProvider>

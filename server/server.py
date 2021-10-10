@@ -10,24 +10,19 @@ import time
 import re
 import os
 
-class NewURLAlias(BaseModel):
-	slug: str
-	canonical_url: str
-	meta_title: Optional[str]
-	meta_description: Optional[str]
-	meta_colour: Optional[str]
-
-class NewTokenData(BaseModel):
-	username: str
-class NewToken(BaseModel):
-	mode: str
-	data: NewTokenData
-
-html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
-
 not_sus_website = "https://wikipedia.org/"
 
 tokens = []
+
+db = sqlite3.connect("db/datameridian.db")
+cursor = db.cursor()
+
+templates = Jinja2Templates(directory="templates")
+
+app = FastAPI()
+api = APIRouter()
+
+# Auth
 
 async def get_clearance_level(req: Request, returnToken = False) -> Union[int, Tuple[int, str]]:
 	if "X-Clearance" in req.headers:
@@ -49,14 +44,11 @@ async def get_clearance_level(req: Request, returnToken = False) -> Union[int, T
 			return 1
 	return 0
 
-db = sqlite3.connect("db/datameridian.db")
-cursor = db.cursor()
-
-templates = Jinja2Templates(directory="templates")
-
-app = FastAPI()
-
-api = APIRouter()
+class NewTokenData(BaseModel):
+	username: str
+class NewToken(BaseModel):
+	mode: str
+	data: NewTokenData
 
 @api.post("/auth/please-give-me-a-token-pretty-please")
 async def get_auth_token(request: Request, response: Response, body: NewToken):
@@ -85,6 +77,16 @@ async def logout(request: Request, response: Response):
 				return {"error": False}
 	return {"error": True, "detail": "Token not found. This should never happen."}
 
+
+# URL ALiases
+
+class URLAlias(BaseModel):
+	slug: str
+	canonical_url: str
+	meta_title: Optional[str]
+	meta_description: Optional[str]
+	meta_colour: Optional[str]
+
 @api.get("/url-aliases")
 async def get_all_url_aliases(request: Request, response: Response):
 	level = await get_clearance_level(request)
@@ -107,16 +109,15 @@ async def get_all_url_aliases(request: Request, response: Response):
 				"created": alias[6],
 				"uses": alias[7]
 			})
-
 		return {"error": False, "data": aliases}
-
-	except Exception:
-		return {"error": True}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 @api.get("/url-aliases/{slug}")
 async def get_url_alias(request: Request, response: Response, slug: str):
 	level = await get_clearance_level(request)
-	if level < 1:
+	if level < 3:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have clearance to get information on a url alias."}
 	try:
@@ -134,42 +135,44 @@ async def get_url_alias(request: Request, response: Response, slug: str):
 			"created": alias[6],
 			"uses": alias[7]
 		}}
-	except Exception:
-		return {"error": True}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 @api.post("/url-aliases")
-async def create_url_alias(request: Request, response: Response, alias: NewURLAlias):
+async def create_url_alias(request: Request, response: Response, alias: URLAlias):
 	level = await get_clearance_level(request)
 	if level < 3:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have clearance to create url aliases."}
 	try:
 		cursor.execute("""INSERT INTO url_aliases
-		(alias_slug, canonical_url, created_at, uses, meta_title, meta_description, meta_colour)
-		values (:slug, :canonical_url, :created_at, :uses, :meta_title, :meta_description, :meta_colour)""",
+		(alias_slug, canonical_url, created_at, uses, meta_title, meta_description, meta_colour, updated_at)
+		values (:slug, :canonical_url, :created_at, :uses, :meta_title, :meta_description, :meta_colour, :updated_at)""",
 			{"slug": alias.slug, "canonical_url": alias.canonical_url, "created_at": time.time(), "uses": 0, "meta_title": alias.meta_title,
-				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour})
+				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": time.time()})
 		db.commit()
 		return {"error": False}
-	except Exception:
-		return {"error": True}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 @api.patch("/url-aliases/{id}")
-async def update_url_alias(request: Request, response: Response, alias: NewURLAlias, id: int):
+async def update_url_alias(request: Request, response: Response, alias: URLAlias, id: int):
 	level = await get_clearance_level(request)
 	if level < 3:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have clearance to edit url aliases."}
 	try:
 		cursor.execute("""UPDATE url_aliases SET 
-		alias_slug=:slug, canonical_url=:canonical_url, meta_title=:meta_title, meta_description=:meta_description, meta_colour=:meta_colour
+		alias_slug=:slug, canonical_url=:canonical_url, meta_title=:meta_title, meta_description=:meta_description, meta_colour=:meta_colour, updated_at=:updated_at
 		WHERE id=:id""",
-			{"slug": alias.slug, "canonical_url": alias.canonical_url, "meta_title": alias.meta_title,
-				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "id": id})
+			{"slug": alias.slug, "canonical_url": alias.canonical_url, "meta_title": alias.meta_title, "meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": time.time(), "id": id})
 		db.commit()
 		return {"error": False}
-	except Exception:
-		return {"error": True}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 @api.delete("/url-aliases/{slug}")
 async def delete_url_alias(request: Request, response: Response, slug: str):
@@ -182,10 +185,8 @@ async def delete_url_alias(request: Request, response: Response, slug: str):
 		db.commit()
 		return {"error": False}
 	except Exception as e:
-		# print(e)
-		return {"error": True}
-
-app.include_router(api,prefix="/api")
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 @app.get("/a/{slug}", response_class=HTMLResponse)
 async def go_to_alias(request: Request, slug: str):
@@ -207,10 +208,170 @@ async def go_to_alias(request: Request, slug: str):
 		else:
 			return RedirectResponse(not_sus_website)
 	except Exception as e:
-		# print(e)
+		print(e)
+		#return {"error": True, "detail": str(e)}
 		return RedirectResponse(not_sus_website)
 
+# Todo lists
 
+class TodoList(BaseModel):
+	title: str
+
+class TodoListItem(BaseModel):
+	completed: bool
+	content: str
+
+@api.post("/todos")
+async def create_todo_list(request: Request, response: Response, todo_list: TodoList):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create new todo lists."}
+	try:
+		cursor.execute("""INSERT INTO todo_lists
+		(title, created_at, updated_at)
+		values (:title, :created_at, :updated_at)""",
+			{"title": todo_list.title, "created_at": time.time(), "updated_at": time.time()})
+		db.commit()
+		cursor.execute("SELECT MAX(id) FROM todo_lists")
+		new_todo_list = cursor.fetchone()
+		return {"error": False, "data": {"id": new_todo_list[0]}}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.get("/todos")
+async def get_all_todo_lists(request: Request, response: Response):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to get all the todo lists."}
+	try:
+		todo_lists = []
+		cursor.execute("SELECT * FROM todo_lists ORDER BY updated_at DESC")
+		db_todo_lists = cursor.fetchall()
+		for todo_list in db_todo_lists:
+			todo_items = []
+			for todo_item in cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY updated_at DESC", {"todo_list_id": todo_list[0]}):
+				todo_items.append({
+					"id": todo_item[0],
+					"is_completed": bool(todo_item[1]),
+					"completed": bool(todo_item[5]),
+					"content": todo_item[2],
+					"added": todo_item[4],
+					"updated": todo_item[5]
+				})
+			
+			todo_lists.append({
+				"id": todo_list[0],
+				"title": todo_list[1],
+				"created": todo_list[2],
+				"updated": todo_list[3],
+				"todos": todo_items
+			})
+
+		return {"error": False, "data": todo_lists}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.patch("/todos/{todo_list_id}")
+async def edit_todo_list(request: Request, response: Response, todo_list: TodoList, todo_list_id: str):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to edit todo lists."}
+	try:
+		cursor.execute("""UPDATE todo_lists SET 
+		title=:title, updated_at=:updated_at
+		WHERE id=:todo_list_id""",
+			{"title": todo_list.title, "updated_at": time.time(), "todo_list_id": todo_list_id})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.delete("/todos/{todo_list_id}")
+async def delete_url_alias(request: Request, response: Response, todo_list_id: str):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to delete todo lists."}
+	try:
+		cursor.execute("DELETE FROM todo_items WHERE todo_list_id=:todo_list_id", {"todo_list_id": todo_list_id})
+		cursor.execute("DELETE FROM todo_lists WHERE id=:todo_list_id", {"todo_list_id": todo_list_id})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.post("/todos/{todo_list_id}")
+async def add_todo_list_item(request: Request, response: Response, todo_list_id: str, todo_item: TodoListItem):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create new todo list items."}
+	try:
+		completed_at = ""
+		if todo_item.completed:
+			completed_at = time.time()
+		cursor.execute("""INSERT INTO todo_items
+		(todo_list_id, completed, content, added_at, completed_at, updated_at)
+		values (:todo_list_id, :is_completed, :content, :added, :completed, :updated_at)""",
+		{"todo_list_id": todo_list_id, "is_completed": todo_item.completed, "content": todo_item.content, "added": time.time(), "completed": completed_at, "updated_at": time.time()})
+		db.commit()
+		cursor.execute("SELECT MAX(id) FROM todo_items")
+		new_todo_item = cursor.fetchone()
+		return {"error": False, "data": {"id": new_todo_item[0]}}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+# Todo items
+@api.patch("/todos/{todo_list_id}/{todo_item_id}")
+async def edit_todo_list_item(request: Request, response: Response, todo_list: TodoList, todo_list_id: str, todo_item_id: str, todo_item: TodoListItem):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to edit todo list items."}
+	try:
+		completed_at = ""
+		if todo_item.completed:
+			completed_at = time.time()
+		cursor.execute("""UPDATE todo_items SET 
+		content=:content, completed=:is_completed, completed_at=:completed_at, updated_at=:updated_at
+		WHERE todo_list_id=:todo_list_id AND id=:todo_item_id""",
+			{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id, "content": todo_item.content, "is_completed": todo_item.completed, "completed_at": completed_at, "updated_at": time.time()})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.delete("/todos/{todo_list_id}/{todo_item_id}")
+async def delete_url_alias(request: Request, response: Response, todo_list_id: str, todo_item_id: str):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to delete todo list items."}
+	try:
+		cursor.execute("DELETE FROM todo_items WHERE todo_list_id=:todo_list_id AND id=:todo_item_id",
+		{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+# Other setup
+
+app.include_router(api,prefix="/api")
+
+# Static files
+
+html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
 
 # Make the base route return index.html
 @app.get("/", response_class=HTMLResponse)

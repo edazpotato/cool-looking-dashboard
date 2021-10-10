@@ -33,6 +33,16 @@ export function useAPI(
 	const makeRequest = useCallback(() => {
 		setLoading(true);
 		setError(false);
+		callAPI(endpoint, token, fetchArgs, {
+			showSnackbarOnError,
+			enqueueSnackbar,
+			setError,
+			setLoading,
+			setData,
+			user,
+			setUser,
+		});
+		/*
 		fetch(`/api/${endpoint}`, {
 			...fetchArgs,
 			headers: {
@@ -100,6 +110,7 @@ export function useAPI(
 					setLoading(false);
 				}
 			});
+			*/
 	}, [
 		endpoint,
 		fetchArgs,
@@ -120,7 +131,8 @@ export function useAPI(
 export async function callAPI(
 	endpoint: string,
 	token?: string,
-	fetchArgs?: any
+	fetchArgs?: any,
+	useAPIOptions?: any
 ) {
 	const promise = new Promise<any>((resolve, reject) => {
 		fetch(`/api/${endpoint}`, {
@@ -134,37 +146,122 @@ export async function callAPI(
 			},
 		})
 			.catch((err) => {
+				if (useAPIOptions) {
+					useAPIOptions.showSnackbarOnError &&
+						useAPIOptions.enqueueSnackbar(err);
+					useAPIOptions.setError(err);
+					useAPIOptions.setLoading(false);
+				}
+				try {
+					window.enqueueSnackbar(err);
+				} catch {}
 				reject(err);
 			})
 			.then((res) => {
 				if (res) {
 					if (!res.ok) {
-						reject("Request not OK :(");
+						if (res.status === 406) {
+							if (useAPIOptions) {
+								console.log(useAPIOptions);
+								logout(
+									useAPIOptions.user,
+									useAPIOptions.setUser
+								);
+							} else {
+								try {
+									window.setUser({ loggedIn: false });
+								} catch {}
+							}
+							try {
+								window.enqueueSnackbar("No clearance!");
+							} catch {}
+						}
+						const err = "Request not OK :(";
+						if (useAPIOptions) {
+							useAPIOptions.setError(err);
+							useAPIOptions.showSnackbarOnError &&
+								useAPIOptions.enqueueSnackbar(err);
+						}
+						try {
+							window.enqueueSnackbar(err);
+						} catch {}
+						reject(err);
 					} else {
-						return res.json();
+						res.json()
+							.catch((err) => {
+								if (useAPIOptions) {
+									useAPIOptions.showSnackbarOnError &&
+										useAPIOptions.enqueueSnackbar(err);
+									useAPIOptions.setError(err);
+									useAPIOptions.setLoading(false);
+								}
+								try {
+									window.enqueueSnackbar(err);
+								} catch {}
+								reject(err);
+							})
+							.then((data) => {
+								if (
+									(typeof data !== "undefined" ||
+										typeof data !== "undefined") &&
+									data
+								) {
+									if (data.error || data.detail) {
+										const err = data.detail
+											? data.detail.msg
+												? data.detail.msg
+												: typeof data.detail ===
+												  "string"
+												? data.detal
+												: "An error happened lol"
+											: "Unknown error.";
+										if (useAPIOptions) {
+											useAPIOptions.showSnackbarOnError &&
+												useAPIOptions.enqueueSnackbar(
+													err
+												);
+											useAPIOptions.setError(err);
+											useAPIOptions.setLoading(false);
+										}
+										try {
+											window.enqueueSnackbar(err);
+										} catch {}
+										reject(err);
+									} else {
+										if (useAPIOptions) {
+											useAPIOptions.setData(data);
+											useAPIOptions.setLoading(false);
+										}
+										resolve(data);
+									}
+								} else {
+									const err =
+										"Invalid response body received.";
+									if (useAPIOptions) {
+										useAPIOptions.showSnackbarOnError &&
+											useAPIOptions.enqueueSnackbar(err);
+										useAPIOptions.setError(err);
+										useAPIOptions.setLoading(false);
+									}
+									try {
+										window.enqueueSnackbar(err);
+									} catch {}
+									reject(err);
+								}
+							});
 					}
 				} else {
-					reject("Invalid responce received :(");
-				}
-			})
-			.catch((err) => {
-				reject(err);
-			})
-			.then((data) => {
-				if (data) {
-					if (data.error || data.detail) {
-						reject(
-							data.detail
-								? data.detail.msg
-									? data.detail.msg
-									: data.detail
-								: "Unknown error."
-						);
-					} else {
-						resolve(data);
+					const err = "Invalid response received :(";
+					if (useAPIOptions) {
+						useAPIOptions.showSnackbarOnError &&
+							useAPIOptions.enqueueSnackbar(err);
+						useAPIOptions.setError(err);
+						useAPIOptions.setLoading(false);
 					}
-				} else {
-					reject("Invalid response body received.");
+					try {
+						window.enqueueSnackbar(err);
+					} catch {}
+					reject(err);
 				}
 			});
 	});

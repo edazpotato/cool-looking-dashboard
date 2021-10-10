@@ -67,7 +67,11 @@ py setup_database.py
 # Linux
 chmod +x run_server.sh
 ./run_server.sh
+
+# Mac
 ```
+
+<!-- ^ lol -->
 
 8. Done. The server will be running on port 80!
 

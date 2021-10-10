@@ -26,10 +26,19 @@ interface UserContextProviderProps {
 }
 export function UserContextProvider({ children }: UserContextProviderProps) {
 	const [user, setUser] = useState<UserData>(defaultUserContext);
+	window.user = user;
+	window.setUser = setUser;
 
 	return (
 		<UserContext.Provider value={[user, setUser]}>
 			{children}
 		</UserContext.Provider>
 	);
+}
+
+declare global {
+	interface Window {
+		user: any;
+		setUser: any;
+	}
 }

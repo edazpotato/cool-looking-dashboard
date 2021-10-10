@@ -1,13 +1,13 @@
 import {
 	Alert,
 	AlertTitle,
-	Box,
 	Button,
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogTitle,
 	Divider,
+	Link,
 	List,
 	ListItem,
 	ListItemText,
@@ -152,8 +152,21 @@ export function URLAlias() {
 								).toLocaleString()}
 							</Typography>
 						</Stack>
-						<Box sx={{ ml: "auto" }}>
+						<Stack sx={{ ml: "auto" }}>
+							<Link
+								sx={{ flex: 0, mb: 2 }}
+								target="_blank"
+								rel="noopener noreferrer"
+								href={
+									currentAlias?.canonical_url
+										? currentAlias?.canonical_url
+										: undefined
+								}
+							>
+								View cannonical URL
+							</Link>
 							<Button
+								sx={{ flex: 0 }}
 								variant="contained"
 								color="error"
 								onClick={() => {
@@ -176,7 +189,7 @@ export function URLAlias() {
 							>
 								Delete
 							</Button>
-						</Box>
+						</Stack>
 					</Stack>
 
 					<Stack

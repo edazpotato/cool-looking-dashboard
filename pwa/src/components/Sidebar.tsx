@@ -10,15 +10,17 @@ import {
 	ListItemText,
 	Stack,
 	SwipeableDrawer,
+	Tooltip,
 	Typography,
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
 import { useContext, useState } from "react";
 
-import CloseIcon from "@mui/icons-material/Close";
-import HomeIcon from "@mui/icons-material/Home";
-import LinkIcon from "@mui/icons-material/Link";
+import CloseIcon from "@mui/icons-material/CloseSharp";
+import HomeIcon from "@mui/icons-material/HomeSharp";
+import LinkIcon from "@mui/icons-material/LinkSharp";
+import ListIcon from "@mui/icons-material/ListSharp";
 import { UserContext } from "../data";
 import { logout } from "../utils";
 import { useHistory } from "react-router-dom";
@@ -28,6 +30,11 @@ const pages: { text: string; slug: string; icon: JSX.Element }[] = [
 		text: "Home",
 		slug: "/",
 		icon: <HomeIcon />,
+	},
+	{
+		text: "Todo lists",
+		slug: "/todos",
+		icon: <ListIcon />,
 	},
 	{
 		text: "URL Aliases",
@@ -40,10 +47,17 @@ interface SidebarProps {
 	mobileOpen: boolean;
 	onClose: () => any;
 	onOpen: () => any;
+	reRenderApp: (c: (x: number) => any) => any;
 	width: number;
 }
 
-export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
+export function Sidebar({
+	mobileOpen,
+	onClose,
+	width,
+	onOpen,
+	reRenderApp,
+}: SidebarProps) {
 	const [user, setUser] = useContext(UserContext);
 	const theme = useTheme();
 	const onMobile = !useMediaQuery(theme.breakpoints.up("md"));
@@ -64,13 +78,23 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 					<Typography variant="h6">CL-Dash</Typography>
 					{onMobile && (
 						<Box sx={{ ml: "auto" }}>
-							<IconButton onClick={onClose}>
-								<CloseIcon />
-							</IconButton>
+							<Tooltip title="Close sidebar">
+								<IconButton onClick={onClose}>
+									<CloseIcon />
+								</IconButton>
+							</Tooltip>
 						</Box>
 					)}
 				</Stack>
 				<Typography variant="caption">Version ???</Typography>
+				<Button
+					sx={{ flex: 0, mt: 2, mb: 2 }}
+					variant="contained"
+					color="warning"
+					onClick={() => reRenderApp((x) => x + 1)}
+				>
+					Re-Render dashboard
+				</Button>
 			</Box>
 			<Divider />
 			<List>

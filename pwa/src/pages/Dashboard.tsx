@@ -4,25 +4,31 @@ import {
 	IconButton,
 	Stack,
 	Toolbar,
+	Tooltip,
 	Typography,
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
 import { ErrorBoundary, Sidebar } from "../components";
 import { Route, Switch as RouterSwitch } from "react-router-dom";
+import { Todos, URLAlias } from "./DashboardPages";
 import { useContext, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import { URLAlias } from "./DashboardPages";
 import { UserContext } from "../data";
+import { useSnackbar } from "notistack";
 
 const drawerWidth = 300;
 
 export function Dashboard() {
 	const [user] = useContext(UserContext);
+	const { enqueueSnackbar } = useSnackbar();
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+	const [reRenderer, reRenderApp] = useState(0);
+
+	window.enqueueSnackbar = enqueueSnackbar;
 
 	return user.loggedIn ? (
 		<Stack
@@ -31,23 +37,26 @@ export function Dashboard() {
 			}}
 		>
 			<Sidebar
+				reRenderApp={reRenderApp}
 				mobileOpen={mobileSidebarOpen}
 				onClose={() => setMobileSidebarOpen(false)}
 				onOpen={() => setMobileSidebarOpen(true)}
 				width={drawerWidth}
 			/>
 			{!onDesktop && (
-				<IconButton
-					onClick={() => setMobileSidebarOpen(true)}
-					sx={{
-						position: "fixed",
-						top: (theme) => theme.spacing(2),
-						left: (theme) => theme.spacing(2),
-						zIndex: (theme) => theme.zIndex.drawer - 1,
-					}}
-				>
-					<MenuIcon />
-				</IconButton>
+				<Tooltip title="Open sidebar">
+					<IconButton
+						onClick={() => setMobileSidebarOpen(true)}
+						sx={{
+							position: "fixed",
+							top: (theme) => theme.spacing(2),
+							left: (theme) => theme.spacing(2),
+							zIndex: (theme) => theme.zIndex.drawer - 1,
+						}}
+					>
+						<MenuIcon />
+					</IconButton>
+				</Tooltip>
 			)}
 			<ErrorBoundary>
 				<RouterSwitch>
@@ -58,6 +67,10 @@ export function Dashboard() {
 							expires at{" "}
 							{new Date(user.tokenEpiresAt).toLocaleTimeString()}.
 						</Typography>
+						<Typography>Re-rendered {reRenderer} times.</Typography>
+					</Route>
+					<Route path="/todos">
+						<Todos />
 					</Route>
 					<Route path="/url-alias">
 						<URLAlias />
@@ -89,4 +102,10 @@ export function Dashboard() {
 			aren{"'"}t logged in.
 		</Typography>
 	);
+}
+
+declare global {
+	interface Window {
+		enqueueSnackbar: any;
+	}
 }
