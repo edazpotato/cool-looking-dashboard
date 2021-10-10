@@ -126,6 +126,59 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 	const [tempTitle, setTempTitle] = useState(data.title);
 	const [newTodoItemText, setNewTodoItemText] = useState("");
 
+	function onNewTodoAdd(e: any) {
+		e?.preventDefault();
+
+		callAPI(`todos/${data.id}`, user.loggedIn ? user.token : undefined, {
+			method: "POST",
+			body: JSON.stringify({
+				completed: false,
+				content: newTodoItemText,
+			}),
+		})
+			.then((res) => {
+				console.log("e", res);
+				setFetchData((oldFetchData: any) => {
+					try {
+						document
+							.getElementById(
+								`new-todo-item-for-todo-list-${data.id}`
+							)
+							?.focus();
+					} catch {}
+					const d = {
+						...oldFetchData,
+						data: [
+							{
+								...data,
+								todos: [
+									{
+										id: res.data.id,
+										is_completed: false,
+										completed: null,
+										content: newTodoItemText,
+										added: Date.now(),
+										updated: Date.now(),
+									},
+									...data.todos.filter(
+										(thing: TodoListItemType) =>
+											thing.id !== res.data.id
+									),
+								],
+							},
+							...oldFetchData.data.filter(
+								(thing: TodoListType) => thing.id !== data.id
+							),
+						],
+					};
+					console.log(d);
+					return d;
+				});
+				setNewTodoItemText("");
+			})
+			.catch(console.warn);
+	}
+
 	return (
 		<Paper sx={{ p: 4, m: 4, overflow: "auto" }}>
 			<Stack>
@@ -222,78 +275,26 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 				</Stack>
 
 				<Stack direction="row" sx={{ mt: 4 }}>
-					<TextField
-						value={newTodoItemText}
-						onChange={(e) => setNewTodoItemText(e.target.value)}
-						sx={{ flex: "1" }}
-						label="New todo item"
-						variant="standard"
-						id={`new-todo-item-for-todo-list-${data.id}`}
-						autoComplete="off"
-					/>
+					<form
+						action="#/todos"
+						style={{ flex: 1 }}
+						onSubmit={onNewTodoAdd}
+					>
+						<TextField
+							value={newTodoItemText}
+							onChange={(e) => setNewTodoItemText(e.target.value)}
+							fullWidth
+							label="New todo item"
+							variant="standard"
+							id={`new-todo-item-for-todo-list-${data.id}`}
+							autoComplete="off"
+						/>
+					</form>
 					<IconButton
 						disabled={newTodoItemText.length < 1}
 						size="large"
 						edge="end"
-						onClick={() => {
-							callAPI(
-								`todos/${data.id}`,
-								user.loggedIn ? user.token : undefined,
-								{
-									method: "POST",
-									body: JSON.stringify({
-										completed: false,
-										content: newTodoItemText,
-									}),
-								}
-							)
-								.then((res) => {
-									console.log("e", res);
-									setFetchData((oldFetchData: any) => {
-										try {
-											document
-												.getElementById(
-													`new-todo-item-for-todo-list-${data.id}`
-												)
-												?.focus();
-										} catch {}
-										const d = {
-											...oldFetchData,
-											data: [
-												{
-													...data,
-													todos: [
-														{
-															id: res.data.id,
-															is_completed: false,
-															completed: null,
-															content:
-																newTodoItemText,
-															added: Date.now(),
-															updated: Date.now(),
-														},
-														...data.todos.filter(
-															(
-																thing: TodoListItemType
-															) =>
-																thing.id !==
-																res.data.id
-														),
-													],
-												},
-												...oldFetchData.data.filter(
-													(thing: TodoListType) =>
-														thing.id !== data.id
-												),
-											],
-										};
-										console.log(d);
-										return d;
-									});
-									setNewTodoItemText("");
-								})
-								.catch(console.warn);
-						}}
+						onClick={onNewTodoAdd}
 					>
 						<AddTaskIcon sx={{ transform: "scale(1.3)" }} />
 					</IconButton>

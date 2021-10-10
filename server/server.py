@@ -249,7 +249,7 @@ async def get_all_todo_lists(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get all the todo lists."}
 	try:
 		todo_lists = []
-		db_todo_lists = cursor.execute("SELECT * FROM todo_lists ORDER BY created_at DESC").fetchall()
+		db_todo_lists = cursor.execute("SELECT * FROM todo_lists ORDER BY updated_at DESC").fetchall()
 		for todo_list in db_todo_lists:
 			todo_items = []
 			db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at DESC", {"todo_list_id": todo_list[0]}).fetchall()
