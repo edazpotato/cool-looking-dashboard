@@ -78,3 +78,5 @@ chmod +x run_server.sh
 ## Licence
 
 See LICENCE file.
+
+> Note to self: To build, use `docker build -t edaz/cl-dash:0.1.0 .`
