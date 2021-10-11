@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useRef } from "react";
 
-import { Geometry } from "three/examples/jsm/deprecated/Geometry.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { UserContext } from "../../data";
 import { useSnackbar } from "notistack";
 
@@ -45,6 +45,9 @@ export function HomePage() {
 				const renderer = new WebGLRenderer({ canvas });
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(width, height);
+
+				const controls = new OrbitControls(camera, renderer.domElement);
+
 				const globeGeometry = new SphereGeometry(globeRadius);
 				const globeMaterial = new MeshBasicMaterial({
 					color: theme.palette.primary.dark,
@@ -58,7 +61,10 @@ export function HomePage() {
 
 				const animate = () => {
 					animationFrameID = requestAnimationFrame(animate);
+
 					globeShape.rotateY(0.001);
+					controls.update();
+
 					renderer.render(scene, camera);
 				};
 				animate();
