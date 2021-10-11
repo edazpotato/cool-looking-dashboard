@@ -3,15 +3,14 @@ import {
 	Button,
 	IconButton,
 	Stack,
-	Toolbar,
 	Tooltip,
 	Typography,
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
 import { ErrorBoundary, Sidebar } from "../components";
+import { HomePage, Todos, URLAlias } from "./DashboardPages";
 import { Route, Switch as RouterSwitch } from "react-router-dom";
-import { Todos, URLAlias } from "./DashboardPages";
 import { useContext, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -26,7 +25,7 @@ export function Dashboard() {
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-	const [reRenderer, reRenderApp] = useState(0);
+	const [, reRenderApp] = useState(0);
 
 	window.enqueueSnackbar = enqueueSnackbar;
 
@@ -61,13 +60,7 @@ export function Dashboard() {
 			<ErrorBoundary>
 				<RouterSwitch>
 					<Route path="/" exact>
-						{!onDesktop && <Toolbar />}
-						<Typography>
-							{user.name}, you are logged in! Your current session
-							expires at{" "}
-							{new Date(user.tokenEpiresAt).toLocaleTimeString()}.
-						</Typography>
-						<Typography>Re-rendered {reRenderer} times.</Typography>
+						<HomePage />
 					</Route>
 					<Route path="/todos">
 						<Todos />
