@@ -10,6 +10,7 @@ specifiers:
   '@types/react-dom': ^17.0.0
   '@types/react-router-dom': ^5.3.0
   '@types/three': ^0.133.0
+  '@types/use-persisted-state': ^0.3.0
   notistack: ^2.0.2
   react: ^17.0.2
   react-dom: ^17.0.2
@@ -17,6 +18,7 @@ specifiers:
   react-scripts: 4.0.3
   three: ^0.133.1
   typescript: ^4.1.2
+  use-persisted-state: ^0.3.3
   web-vitals: ^1.0.1
   workbox-background-sync: ^5.1.3
   workbox-broadcast-update: ^5.1.3
@@ -46,6 +48,7 @@ dependencies:
   react-scripts: 4.0.3_react@17.0.2+typescript@4.4.3
   three: 0.133.1
   typescript: 4.4.3
+  use-persisted-state: 0.3.3_react@17.0.2
   web-vitals: 1.1.2
   workbox-background-sync: 5.1.4
   workbox-broadcast-update: 5.1.4
@@ -63,6 +66,7 @@ dependencies:
 devDependencies:
   '@types/react-router-dom': 5.3.0
   '@types/three': 0.133.0
+  '@types/use-persisted-state': 0.3.0
 
 packages:
 
@@ -2566,6 +2570,12 @@ packages:
       source-map: 0.6.1
     dev: false
 
+  /@types/use-persisted-state/0.3.0:
+    resolution: {integrity: sha512-ZT98QuckR95qM7W97lGVqc7fFS9TT6f3txp7R40fl0zxa5BLm3GG7j0i51G12h8DkoJxFAf2oQyYKU99h0pxFA==}
+    dependencies:
+      '@types/react': 17.0.24
+    dev: true
+
   /@types/webpack-sources/3.2.0:
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
     dependencies:
@@ -2749,6 +2759,14 @@ packages:
     dependencies:
       '@typescript-eslint/types': 4.31.2
       eslint-visitor-keys: 2.1.0
+    dev: false
+
+  /@use-it/event-listener/0.1.6_react@17.0.2:
+    resolution: {integrity: sha512-e6V7vbU8xpuqy4GZkTLExHffOFgxmGHo3kNWnlhzM/zcX2v+idbD/HaJ9sKdQMgTh+L7MIhdRDXGX3SdAViZzA==}
+    peerDependencies:
+      react: ^16.8.0
+    dependencies:
+      react: 17.0.2
     dev: false
 
   /@webassemblyjs/ast/1.9.0:
@@ -11568,6 +11586,15 @@ packages:
     dependencies:
       punycode: 1.3.2
       querystring: 0.2.0
+    dev: false
+
+  /use-persisted-state/0.3.3_react@17.0.2:
+    resolution: {integrity: sha512-pCNlvYC8+XjRxwnIut4teGC9f2p9aD88R8OGseQGZa2dvqG/h1vEGk1vRE1IZG0Vf161UDpn+NlW4+UGubQflQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@use-it/event-listener': 0.1.6_react@17.0.2
+      react: 17.0.2
     dev: false
 
   /use/3.1.1:
