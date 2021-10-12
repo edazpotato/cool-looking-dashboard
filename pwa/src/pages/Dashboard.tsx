@@ -15,6 +15,7 @@ import { useContext, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserContext } from "../data";
+import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 
 const drawerWidth = 300;
@@ -26,6 +27,10 @@ export function Dashboard() {
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 	const [, reRenderApp] = useState(0);
+
+	useEffect(() => {
+		enqueueSnackbar("Logged in to CL-Dash.", { variant: "info" });
+	}, [user, enqueueSnackbar]);
 
 	window.enqueueSnackbar = enqueueSnackbar;
 

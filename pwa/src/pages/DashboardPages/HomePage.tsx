@@ -18,15 +18,33 @@ import { useContext, useEffect, useRef } from "react";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { UserContext } from "../../data";
-import { useSnackbar } from "notistack";
-
-const globeRadius = 30;
 
 export function HomePage() {
 	const [user] = useContext(UserContext);
-	const { enqueueSnackbar } = useSnackbar();
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+	return user.loggedIn ? (
+		<Stack sx={{ px: 4, py: onDesktop ? 4 : 0 }}>
+			{!onDesktop && <Toolbar />}
+			<GlobePanel />
+			<Typography>
+				{user.name}, you are logged in! Your current session expires at{" "}
+				{new Date(user.tokenEpiresAt).toLocaleTimeString()}.
+			</Typography>
+		</Stack>
+	) : (
+		<Typography>
+			Soemthing weird is happening. The dashboard homepage is trying to
+			render but you aren{"'"}t logged in.
+		</Typography>
+	);
+}
+
+const globeRadius = 30;
+
+function GlobePanel() {
+	const theme = useTheme();
 	const globeCanvasRef = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
@@ -80,21 +98,9 @@ export function HomePage() {
 		};
 	}, [globeCanvasRef, theme]);
 
-	return user.loggedIn ? (
-		<Stack sx={{ px: 4, py: onDesktop ? 4 : 0 }}>
-			{!onDesktop && <Toolbar />}
-			<Paper sx={{ flex: 0, width: "250px", height: "250px" }}>
-				<canvas width="250" height="250" ref={globeCanvasRef} />
-			</Paper>
-			<Typography>
-				{user.name}, you are logged in! Your current session expires at{" "}
-				{new Date(user.tokenEpiresAt).toLocaleTimeString()}.
-			</Typography>
-		</Stack>
-	) : (
-		<Typography>
-			Soemthing weird is happening. The dashboard homepage is trying to
-			render but you aren{"'"}t logged in.
-		</Typography>
+	return (
+		<Paper sx={{ flex: 0, width: "250px", height: "250px" }}>
+			<canvas width="250" height="250" ref={globeCanvasRef} />
+		</Paper>
 	);
 }
