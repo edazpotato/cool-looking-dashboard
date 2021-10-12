@@ -22,6 +22,14 @@ templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 api = APIRouter()
 
+# Important stuff for CORP so that the frontend can use SharedArrayBuffer
+@app.middleware("http")
+async def add_corp_headers(request: Request, call_next):
+	response = await call_next(request)
+	response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+	response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+	return response
+
 # Auth
 
 async def get_clearance_level(req: Request, returnToken = False) -> Union[int, Tuple[int, str]]:

@@ -1,4 +1,4 @@
-import { ClockPanel, GlobePanel } from "./HomePagePanels";
+import { ClockPanel, FFMPEGPanel, GlobePanel } from "./HomePagePanels";
 import {
 	Stack,
 	Toolbar,
@@ -28,6 +28,7 @@ export function HomePage() {
 			>
 				<ClockPanel />
 				<GlobePanel />
+				<FFMPEGPanel />
 			</Stack>
 			<Typography>
 				{user.name}, you are logged in! Your current session expires at{" "}

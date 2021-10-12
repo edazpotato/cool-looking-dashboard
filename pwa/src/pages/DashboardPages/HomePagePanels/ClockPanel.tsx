@@ -62,6 +62,7 @@ export function ClockPanel() {
 				display: "flex",
 				flexDirection: "column",
 				gap: 4,
+				minWidth: "50%",
 			}}
 		>
 			<Stack
