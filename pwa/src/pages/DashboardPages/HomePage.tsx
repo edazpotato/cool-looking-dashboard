@@ -1,5 +1,4 @@
 import {
-	BufferGeometry,
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
@@ -33,6 +32,7 @@ export function HomePage() {
 	useEffect(() => {
 		let animationFrameID: number | undefined;
 		const canvas = globeCanvasRef.current;
+		let renderer: WebGLRenderer | undefined;
 		if (canvas) {
 			const gl =
 				canvas.getContext("webgl") ||
@@ -42,11 +42,14 @@ export function HomePage() {
 				const scene = new Scene();
 				const camera = new PerspectiveCamera(75, width / height);
 				camera.position.setZ(65);
-				const renderer = new WebGLRenderer({ canvas });
+				renderer = new WebGLRenderer({ canvas });
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(width, height);
 
 				const controls = new OrbitControls(camera, renderer.domElement);
+				controls.autoRotateSpeed = 1.2;
+				controls.autoRotate = true;
+				controls.enableDamping = true;
 
 				const globeGeometry = new SphereGeometry(globeRadius);
 				const globeMaterial = new MeshBasicMaterial({
@@ -62,10 +65,10 @@ export function HomePage() {
 				const animate = () => {
 					animationFrameID = requestAnimationFrame(animate);
 
-					globeShape.rotateY(0.001);
+					// globeShape.rotateY(0.001);
 					controls.update();
 
-					renderer.render(scene, camera);
+					renderer && renderer.render(scene, camera);
 				};
 				animate();
 			}
@@ -73,11 +76,12 @@ export function HomePage() {
 
 		return () => {
 			animationFrameID && cancelAnimationFrame(animationFrameID);
+			renderer && renderer.dispose();
 		};
 	}, [globeCanvasRef, theme]);
 
 	return user.loggedIn ? (
-		<Stack>
+		<Stack sx={{ px: 4, py: onDesktop ? 4 : 0 }}>
 			{!onDesktop && <Toolbar />}
 			<Paper sx={{ flex: 0, width: "250px", height: "250px" }}>
 				<canvas width="250" height="250" ref={globeCanvasRef} />
