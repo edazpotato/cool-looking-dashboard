@@ -11,7 +11,7 @@ import { useEffect, useRef } from "react";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-const globeRadius = 30;
+const globeRadius = 35;
 
 export function GlobePanel() {
 	const theme = useTheme();
