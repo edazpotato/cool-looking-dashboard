@@ -53,7 +53,7 @@ export default function App() {
 			<SnackbarProvider
 				anchorOrigin={{
 					vertical: "bottom",
-					horizontal: "left",
+					horizontal: "right",
 				}}
 				TransitionComponent={SlideTransition}
 				variant="error"

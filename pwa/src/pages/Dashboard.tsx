@@ -29,7 +29,7 @@ export function Dashboard() {
 	const [, reRenderApp] = useState(0);
 
 	useEffect(() => {
-		enqueueSnackbar("Logged in to CL-Dash.", { variant: "info" });
+		enqueueSnackbar("Logged in to CL-Dash.", { variant: "success" });
 	}, [user, enqueueSnackbar]);
 
 	window.enqueueSnackbar = enqueueSnackbar;

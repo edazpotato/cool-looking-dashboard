@@ -113,7 +113,12 @@ export function Sidebar({
 					</ListItem>
 				))}
 			</List>
-			<Button sx={{ mt: "auto" }} onClick={() => logout(user, setUser)}>
+			<Button
+				sx={{ mt: "auto" }}
+				onClick={() => {
+					logout(user, setUser, true);
+				}}
+			>
 				Log out
 			</Button>
 		</Stack>
