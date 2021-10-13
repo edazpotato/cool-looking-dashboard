@@ -10,6 +10,8 @@ import time
 import re
 import os
 
+print("Make sure to run this using the scripts, not directly with python!")
+
 not_sus_website = "https://wikipedia.org/"
 
 tokens = []
@@ -376,15 +378,14 @@ async def delete_url_alias(request: Request, response: Response, todo_list_id: s
 
 # Other setup
 
-app.include_router(api,prefix="/api")
+app.include_router(api, prefix="/api")
 
 # Static files
+if "ENVIRONMENT" in os.environ and os.environ["ENVIRONMENT"] != "development":
+	# Make the base route return index.html
+	html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
+	@app.get("/", response_class=HTMLResponse)
+	def root():
+		return html_index_file
 
-html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
-
-# Make the base route return index.html
-@app.get("/", response_class=HTMLResponse)
-def root():
-    return html_index_file
-
-app.mount("/", StaticFiles(directory="../pwa/build"), name="static")
+	app.mount("/", StaticFiles(directory="../pwa/build"), name="static")

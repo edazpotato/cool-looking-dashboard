@@ -47,17 +47,10 @@ interface SidebarProps {
 	mobileOpen: boolean;
 	onClose: () => any;
 	onOpen: () => any;
-	reRenderApp: (c: (x: number) => any) => any;
 	width: number;
 }
 
-export function Sidebar({
-	mobileOpen,
-	onClose,
-	width,
-	onOpen,
-	reRenderApp,
-}: SidebarProps) {
+export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 	const [user, setUser] = useContext(UserContext);
 	const theme = useTheme();
 	const onMobile = !useMediaQuery(theme.breakpoints.up("md"));
@@ -87,14 +80,6 @@ export function Sidebar({
 					)}
 				</Stack>
 				<Typography variant="caption">Version ???</Typography>
-				<Button
-					sx={{ flex: 0, mt: 2, mb: 2 }}
-					variant="contained"
-					color="warning"
-					onClick={() => reRenderApp((x) => x + 1)}
-				>
-					Re-Render dashboard
-				</Button>
 			</Box>
 			<Divider />
 			<List>

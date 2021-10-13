@@ -47,7 +47,7 @@ export function Login() {
 				}}
 				variant="outlined"
 			>
-				Log in
+				Ask nicely for a token
 			</Button>
 		</Box>
 	) : (

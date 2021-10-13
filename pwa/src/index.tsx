@@ -1,13 +1,20 @@
 import "./index.css";
 
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
-
 import App from "./App";
 import { CssBaseline } from "@mui/material";
 import React from "react";
 import ReactDOM from "react-dom";
 import { UserContextProvider } from "./data";
 import reportWebVitals from "./reportWebVitals";
+
+// import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+
+
+
+
+
+
+
 
 ReactDOM.render(
 	<React.StrictMode>
@@ -27,11 +34,11 @@ reportWebVitals(console.info);
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA
-serviceWorkerRegistration.register();
+// serviceWorkerRegistration.unregister();
 
-declare global {
-	interface Window {
-		serviceWorkerRegistration: any;
-	}
-}
-window.serviceWorkerRegistration = serviceWorkerRegistration;
+// declare global {
+// 	interface Window {
+// 		serviceWorkerRegistration: any;
+// 	}
+// }
+// window.serviceWorkerRegistration = serviceWorkerRegistration;

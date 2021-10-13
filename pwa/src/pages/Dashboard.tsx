@@ -26,7 +26,6 @@ export function Dashboard() {
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-	const [, reRenderApp] = useState(0);
 
 	useEffect(() => {
 		enqueueSnackbar("Logged in to CL-Dash.", { variant: "success" });
@@ -41,7 +40,6 @@ export function Dashboard() {
 			}}
 		>
 			<Sidebar
-				reRenderApp={reRenderApp}
 				mobileOpen={mobileSidebarOpen}
 				onClose={() => setMobileSidebarOpen(false)}
 				onOpen={() => setMobileSidebarOpen(true)}
