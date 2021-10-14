@@ -377,6 +377,10 @@ async def delete_url_alias(request: Request, response: Response, todo_list_id: s
 		return {"error": True, "detail": str(e)}
 
 # Notes
+class Note(BaseModel):
+	title: str
+	content: str
+
 @api.get("/notes")
 async def get_all_notes(request: Request, response: Response):
 	level = await get_clearance_level(request)
@@ -399,7 +403,54 @@ async def get_all_notes(request: Request, response: Response):
 	except Exception as e:
 		print(e)
 		return {"error": True, "detail": str(e)}
-	
+
+@api.post("/notes")
+async def create_new_note(request: Request, response: Response, note: Note):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create a new note."}
+	try:
+		
+		cursor.execute("""INSERT INTO notes (title, content, created_at, updated_at)
+									VALUES (:title, :content, :created, :updated)""",
+									{"title": note.title, "content": note.content, "created": time.time(), "updated": time.time()})
+		db.commit()
+		id = cursor.execute("SELECT MAX(id) FROM todo_lists").fetchone()
+		return {"error": False, "data": {"id": id}}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.patch("/notes/{id}")
+async def edit_note(request: Request, response: Response, id: str, note: Note):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create a new note."}
+	try:
+		
+		cursor.execute("UPDATE notes SET title=:title, content=:content, updated_at=:updated_at WHERE id=:id",
+					{"title":note.title, "content": note.content, "updated_at": time.time(), "id": id})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+@api.delete("/notes/{id}")
+async def delete_note(request: Request, response: Response, id: str):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create a new note."}
+	try:
+		cursor.execute("DELETE FROM notes WHERE id=:id", {"id": id})
+		db.commit()
+		return {"error": False}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 # Other setup
 

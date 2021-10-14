@@ -2,6 +2,11 @@ import {
 	Alert,
 	AlertTitle,
 	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
 	Paper,
 	Stack,
 	TextField,
@@ -26,8 +31,7 @@ interface NoteType {
 
 export function NotesPage() {
 	const [user] = useContext(UserContext);
-	const theme = useTheme();
-	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
+	const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
 
 	const { data, setData, makeRequest, loading, error } = useAPI(
 		"notes",
@@ -36,6 +40,11 @@ export function NotesPage() {
 
 	return user.loggedIn ? (
 		<Stack sx={{ px: 4, pb: 4 }}>
+			<NewNoteDialog
+				open={newNoteDialogOpen}
+				setOpen={setNewNoteDialogOpen}
+				setFetchData={setData}
+			/>
 			<Toolbar>
 				<Button
 					sx={{ ml: "auto" }}
@@ -45,7 +54,11 @@ export function NotesPage() {
 				>
 					Refresh data
 				</Button>
-				<Button sx={{ ml: 2 }} variant="contained" onClick={() => {}}>
+				<Button
+					sx={{ ml: 2 }}
+					variant="contained"
+					onClick={() => setNewNoteDialogOpen(true)}
+				>
 					New note
 				</Button>
 			</Toolbar>
@@ -93,27 +106,41 @@ interface NoteProps {
 	setFetchData: any;
 }
 
-function Note({ data }: NoteProps) {
+function Note({ data, setFetchData }: NoteProps) {
 	const [user] = useContext(UserContext);
 	const [content, setContent] = useState(data.content);
 	return (
-		<Paper sx={{ p: 4 }}>
+		<Paper sx={{ p: 4, mb: 4 }}>
 			{user.loggedIn ? (
 				<Stack>
 					<Stack direction="row" sx={{ alignItems: "center" }}>
 						<Typography>{data.title.slice(0, 20)}</Typography>
 						<Button
 							sx={{ ml: "auto" }}
-							disabled={content === data.content}
-							onClick={() => {}}
-						>
-							Save changes
-						</Button>
-						<Button
-							sx={{ ml: 2 }}
 							variant="contained"
 							color="error"
-							onClick={() => {}}
+							onClick={() => {
+								callAPI(
+									`notes/${data.id}`,
+									user.loggedIn ? user.token : undefined,
+									{ method: "DELETE" }
+								)
+									.then((res) => {
+										setFetchData(
+											(oldFetchData: {
+												data: NoteType[];
+												[x: string]: any;
+											}) => ({
+												...oldFetchData,
+												data: oldFetchData.data.filter(
+													(thing) =>
+														thing.id !== data.id
+												),
+											})
+										);
+									})
+									.catch(console.warn);
+							}}
 						>
 							Delete note
 						</Button>
@@ -129,6 +156,47 @@ function Note({ data }: NoteProps) {
 						value={content}
 						onChange={(e) => setContent(e.target.value)}
 					/>
+					<Button
+						sx={{ mt: 4, alignSelf: "flex-start" }}
+						disabled={content === data.content}
+						onClick={() => {
+							callAPI(
+								`notes/${data.id}`,
+								user.loggedIn ? user.token : undefined,
+								{
+									method: "PATCH",
+									body: JSON.stringify({
+										title: data.title,
+										content,
+									}),
+								}
+							)
+								.then((res) => {
+									setFetchData(
+										(oldFetchData: {
+											data: NoteType[];
+											[x: string]: any;
+										}) => ({
+											...oldFetchData,
+											data: oldFetchData.data.map(
+												(thing) => {
+													if (thing.id !== data.id)
+														return thing;
+													return {
+														...thing,
+														title: data.title,
+														content,
+													};
+												}
+											),
+										})
+									);
+								})
+								.catch(console.warn);
+						}}
+					>
+						Save changes
+					</Button>
 				</Stack>
 			) : (
 				<Typography>
@@ -137,5 +205,96 @@ function Note({ data }: NoteProps) {
 				</Typography>
 			)}
 		</Paper>
+	);
+}
+
+function NewNoteDialog({
+	open,
+	setOpen,
+	setFetchData,
+}: {
+	open: boolean;
+	setOpen: any;
+	setFetchData: any;
+}) {
+	const [user] = useContext(UserContext);
+	const { enqueueSnackbar } = useSnackbar();
+	const [title, setTitle] = useState("");
+	const theme = useTheme();
+	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+	return (
+		<Dialog
+			open={open}
+			onClose={() => setOpen(false)}
+			fullScreen={!onDesktop}
+			maxWidth="sm"
+			fullWidth
+		>
+			<DialogTitle>New note</DialogTitle>
+			<DialogContent>
+				<DialogContentText>
+					Enter a title for the new note.
+				</DialogContentText>
+				<TextField
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
+					autoFocus
+					variant="standard"
+					margin="dense"
+					id="new-todo-list-title-text-field"
+					label="Note title goes here"
+					autoComplete="off"
+					fullWidth
+					required
+				/>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={() => setOpen(false)}>Cancel</Button>
+				<Button
+					onClick={() => {
+						callAPI(
+							"notes",
+							user.loggedIn ? user.token : undefined,
+							{
+								method: "POST",
+								body: JSON.stringify({
+									title,
+									content: "",
+								}),
+							}
+						)
+							.then((resData) => {
+								setOpen(false);
+								setFetchData(
+									(oldFetchData: {
+										data: NoteType[];
+										[x: string]: any;
+									}) => ({
+										...oldFetchData,
+										data: [
+											{
+												id: resData.data.id,
+												title,
+												created: Date.now(),
+												updated: Date.now(),
+												content: "",
+											},
+											...oldFetchData.data,
+										],
+									})
+								);
+								setTitle("");
+							})
+							.catch((err) => {
+								enqueueSnackbar(err);
+								console.warn(err);
+							});
+					}}
+				>
+					Create
+				</Button>
+			</DialogActions>
+		</Dialog>
 	);
 }

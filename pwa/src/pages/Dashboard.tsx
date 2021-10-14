@@ -1,6 +1,6 @@
+import { ErrorBoundary, Sidebar } from "../components";
+import { HomePage, NotesPage, Todos, URLAlias } from "./DashboardPages";
 import {
-	Box,
-	Button,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -8,8 +8,6 @@ import {
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
-import { ErrorBoundary, Sidebar } from "../components";
-import { HomePage, NotesPage, Todos, URLAlias } from "./DashboardPages";
 import { Route, Switch as RouterSwitch } from "react-router-dom";
 import { useContext, useState } from "react";
 
