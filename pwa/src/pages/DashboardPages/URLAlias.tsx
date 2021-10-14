@@ -47,7 +47,7 @@ export function URLAlias() {
 	);
 	const { error, loading, makeRequest, data } = apiCall;
 	const aliasData =
-		data && Array.isArray(data.data)
+		data && "data" in data && Array.isArray(data.data)
 			? (data.data as URLAliasType[])
 			: undefined;
 

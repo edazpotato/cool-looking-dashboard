@@ -376,6 +376,31 @@ async def delete_url_alias(request: Request, response: Response, todo_list_id: s
 		print(e)
 		return {"error": True, "detail": str(e)}
 
+# Notes
+@api.get("/notes")
+async def get_all_notes(request: Request, response: Response):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to get all the notes."}
+	try:
+		notes = []
+		db_notes = cursor.execute("SELECT * FROM notes ORDER BY created_at DESC").fetchall()
+		for note in db_notes:
+			# print(alias)
+			notes.append({
+				"id": note[0],
+				"title": note[1],
+				"content": note[2],
+				"created": note[3],
+				"updated": note[4]
+			})
+		return {"error": False, "data": notes}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+	
+
 # Other setup
 
 app.include_router(api, prefix="/api")

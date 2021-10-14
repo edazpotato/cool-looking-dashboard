@@ -34,7 +34,7 @@ try:
 	CREATE TABLE "notes" (
 		"id"	INTEGER NOT NULL UNIQUE,
 		"title"	TEXT NOT NULL,
-		"content"	TEXT,
+		"content"	TEXT NOT NULL,
 		"created_at"	INTEGER NOT NULL,
 		"updated_at"	INTEGER NOT NULL,
 		PRIMARY KEY("id" AUTOINCREMENT)

@@ -1,16 +1,20 @@
 import { Box, Button, Typography } from "@mui/material";
 import { callAPI, logout } from "../utils";
+import { useContext, useState } from "react";
 
 import { UserContext } from "../data";
-import { useContext } from "react";
 
 export function Login() {
 	const [user, setUser] = useContext(UserContext);
+	const [disabled, setDisabled] = useState(false);
+
 	return !user.loggedIn ? (
 		<Box>
 			<Typography>Not logged in :{"("}</Typography>
 			<Button
+				disabled={disabled}
 				onClick={() => {
+					setDisabled(true);
 					callAPI(
 						"auth/please-give-me-a-token-pretty-please",
 						undefined,
@@ -22,8 +26,8 @@ export function Login() {
 							method: "POST",
 						}
 					)
-						.catch(console.warn)
 						.then((res) => {
+							// console.log(res);
 							const data = res.data;
 							setUser({
 								loggedIn: true,
@@ -43,6 +47,10 @@ export function Login() {
 									).getTime() - Date.now()
 								),
 							});
+						})
+						.catch((e) => {
+							console.warn(e);
+							setDisabled(false);
 						});
 				}}
 				variant="outlined"

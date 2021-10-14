@@ -10,6 +10,14 @@ import { UserContext } from "../data";
 import { logout } from "../utils";
 import { useSnackbar } from "notistack";
 
+type DataType =
+	| null
+	| {
+			errror?: string | true;
+			detail?: string | { msg?: string };
+	  }
+	| { data: any; error?: false };
+
 export function useAPI(
 	endpoint: string,
 	token?: string,
@@ -18,15 +26,15 @@ export function useAPI(
 ) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<boolean | string>(false);
-	const [data, setData] = useState<any>(null);
+	const [data, setData] = useState<DataType>(null);
 	const [user, setUser] = useContext(UserContext);
 	const { enqueueSnackbar } = useSnackbar();
 
 	useDebugValue(
-		loading
-			? "Loading data..."
-			: error
+		error
 			? "Errored"
+			: loading
+			? "Loading data..."
 			: "Successfully loaded data!"
 	);
 
@@ -42,75 +50,6 @@ export function useAPI(
 			user,
 			setUser,
 		});
-		/*
-		fetch(`/api/${endpoint}`, {
-			...fetchArgs,
-			headers: {
-				"X-Clearance": token
-					? `Absolute lad. Proof: ${token}.`
-					: "Nerd. No doumentation found. Reccomended treatment: Instant termination.",
-				"Content-Type": "application/json",
-				...fetchArgs?.headers,
-			},
-		})
-			.catch((err) => {
-				showSnackbarOnError &&
-					enqueueSnackbar(err, { variant: "error" });
-				setError(err);
-				setLoading(false);
-			})
-			.then((res) => {
-				if (res) {
-					if (!res.ok) {
-						if (res.status === 406) {
-							logout(user, setUser);
-						}
-						const err = "Request not OK :(";
-						setError(err);
-						showSnackbarOnError &&
-							enqueueSnackbar(err, { variant: "error" });
-					} else {
-						return res.json();
-					}
-				} else {
-					const err = "Invalid response received :(";
-					showSnackbarOnError &&
-						enqueueSnackbar(err, { variant: "error" });
-					setError(err);
-					setLoading(false);
-				}
-			})
-			.catch((err) => {
-				showSnackbarOnError &&
-					enqueueSnackbar(err, { variant: "error" });
-				setError(err);
-				setLoading(false);
-			})
-			.then((data) => {
-				if (data) {
-					if (data.error || data.detail) {
-						const err = data.detail
-							? data.detail.msg
-								? data.detail.msg
-								: data.detail
-							: "Unknown error.";
-						showSnackbarOnError &&
-							enqueueSnackbar(err, { variant: "error" });
-						setError(err);
-						setLoading(false);
-					} else {
-						setData(data);
-						setLoading(false);
-					}
-				} else {
-					const err = "Invalid response body received.";
-					showSnackbarOnError &&
-						enqueueSnackbar(err, { variant: "error" });
-					setError(err);
-					setLoading(false);
-				}
-			});
-			*/
 	}, [
 		endpoint,
 		fetchArgs,
@@ -125,7 +64,13 @@ export function useAPI(
 		makeRequest();
 	}, [endpoint, token, fetchArgs, makeRequest]);
 
-	return { loading, error, data, makeRequest, setData };
+	return {
+		loading,
+		error,
+		data,
+		makeRequest,
+		setData,
+	};
 }
 
 export async function callAPI(
@@ -155,14 +100,13 @@ export async function callAPI(
 				try {
 					window.enqueueSnackbar(err);
 				} catch {}
-				reject(err);
+				return reject(err);
 			})
 			.then((res) => {
 				if (res) {
 					if (!res.ok) {
 						if (res.status === 406) {
 							if (useAPIOptions) {
-								console.log(useAPIOptions);
 								logout(
 									useAPIOptions.user,
 									useAPIOptions.setUser
@@ -185,7 +129,7 @@ export async function callAPI(
 						try {
 							window.enqueueSnackbar(err);
 						} catch {}
-						reject(err);
+						return reject(err);
 					} else {
 						res.json()
 							.catch((err) => {
@@ -198,23 +142,21 @@ export async function callAPI(
 								try {
 									window.enqueueSnackbar(err);
 								} catch {}
-								reject(err);
+								return reject(err);
 							})
-							.then((data) => {
-								if (
-									(typeof data !== "undefined" ||
-										typeof data !== "undefined") &&
-									data
-								) {
-									if (data.error || data.detail) {
-										const err = data.detail
-											? data.detail.msg
+							.then((data: DataType) => {
+								if (data !== undefined && data !== null) {
+									if (
+										"detail" in data &&
+										typeof data.detail !== "undefined"
+									) {
+										const err =
+											typeof data.detail === "string"
+												? data.detail
+												: "msg" in data.detail
 												? data.detail.msg
-												: typeof data.detail ===
-												  "string"
-												? data.detal
-												: "An error happened lol"
-											: "Unknown error.";
+												: "Unknown error";
+
 										if (useAPIOptions) {
 											useAPIOptions.showSnackbarOnError &&
 												useAPIOptions.enqueueSnackbar(
@@ -226,13 +168,13 @@ export async function callAPI(
 										try {
 											window.enqueueSnackbar(err);
 										} catch {}
-										reject(err);
+										return reject(err);
 									} else {
 										if (useAPIOptions) {
 											useAPIOptions.setData(data);
 											useAPIOptions.setLoading(false);
 										}
-										resolve(data);
+										return resolve(data);
 									}
 								} else {
 									const err =
@@ -246,7 +188,7 @@ export async function callAPI(
 									try {
 										window.enqueueSnackbar(err);
 									} catch {}
-									reject(err);
+									return reject(err);
 								}
 							});
 					}
@@ -261,7 +203,7 @@ export async function callAPI(
 					try {
 						window.enqueueSnackbar(err);
 					} catch {}
-					reject(err);
+					return reject(err);
 				}
 			});
 	});

@@ -82,22 +82,25 @@ export function Todos() {
 					An error occurred while loading the todo lists: {error}
 				</Typography>
 			) : (
-				<>
-					{data.data.length < 1 && (
-						<ListItem>
-							<Alert severity="info">
-								There aren{"'"}t any todo lists.
-							</Alert>
-						</ListItem>
-					)}
-					{data.data.map((todoList: TodoListType) => (
-						<TodoList
-							key={todoList.id}
-							data={todoList}
-							setFetchData={setData}
-						/>
-					))}
-				</>
+				data &&
+				"data" in data && (
+					<>
+						{data.data.length < 1 && (
+							<ListItem>
+								<Alert severity="info">
+									There aren{"'"}t any todo lists.
+								</Alert>
+							</ListItem>
+						)}
+						{data.data.map((todoList: TodoListType) => (
+							<TodoList
+								key={todoList.id}
+								data={todoList}
+								setFetchData={setData}
+							/>
+						))}
+					</>
+				)
 			)}
 			<NewTodolistDialog
 				onDesktop={onDesktop}

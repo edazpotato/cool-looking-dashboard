@@ -9,7 +9,7 @@ import {
 	useTheme,
 } from "@mui/material";
 import { ErrorBoundary, Sidebar } from "../components";
-import { HomePage, Todos, URLAlias } from "./DashboardPages";
+import { HomePage, NotesPage, Todos, URLAlias } from "./DashboardPages";
 import { Route, Switch as RouterSwitch } from "react-router-dom";
 import { useContext, useState } from "react";
 
@@ -68,6 +68,9 @@ export function Dashboard() {
 					<Route path="/todos">
 						<Todos />
 					</Route>
+					<Route path="/notes">
+						<NotesPage />
+					</Route>
 					<Route path="/url-alias">
 						<URLAlias />
 					</Route>
@@ -77,17 +80,6 @@ export function Dashboard() {
 							<br />
 							Not a 404 though because this is client side.
 						</Typography>
-						<Box>
-							{!onDesktop && (
-								<Button
-									onClick={() => setMobileSidebarOpen(true)}
-									variant="contained"
-									color="secondary"
-								>
-									Open sidebar
-								</Button>
-							)}
-						</Box>
 					</Route>
 				</RouterSwitch>
 			</ErrorBoundary>

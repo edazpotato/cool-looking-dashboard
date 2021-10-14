@@ -21,6 +21,7 @@ import CloseIcon from "@mui/icons-material/CloseSharp";
 import HomeIcon from "@mui/icons-material/HomeSharp";
 import LinkIcon from "@mui/icons-material/LinkSharp";
 import ListIcon from "@mui/icons-material/ListSharp";
+import StickyNoteIcon from "@mui/icons-material/StickyNote2Sharp";
 import { UserContext } from "../data";
 import { logout } from "../utils";
 import { useHistory } from "react-router-dom";
@@ -30,6 +31,11 @@ const pages: { text: string; slug: string; icon: JSX.Element }[] = [
 		text: "Home",
 		slug: "/",
 		icon: <HomeIcon />,
+	},
+	{
+		text: "Notes",
+		slug: "/notes",
+		icon: <StickyNoteIcon />,
 	},
 	{
 		text: "Todo lists",
@@ -66,7 +72,7 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 
 	const drawerContent = (
 		<Stack sx={{ flex: 1, mb: 4 }}>
-			<Box p={2}>
+			<Stack sx={{ p: 2 }}>
 				<Stack direction="row" alignItems="center">
 					<Typography variant="h6">CL-Dash</Typography>
 					{onMobile && (
@@ -80,7 +86,16 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 					)}
 				</Stack>
 				<Typography variant="caption">Version ???</Typography>
-			</Box>
+			</Stack>
+			<Button
+				sx={{ mb: 2 }}
+				color="warning"
+				onClick={() => {
+					logout(user, setUser, true);
+				}}
+			>
+				Log out
+			</Button>
 			<Divider />
 			<List>
 				{pages.map((page) => (
@@ -98,14 +113,6 @@ export function Sidebar({ mobileOpen, onClose, width, onOpen }: SidebarProps) {
 					</ListItem>
 				))}
 			</List>
-			<Button
-				sx={{ mt: "auto" }}
-				onClick={() => {
-					logout(user, setUser, true);
-				}}
-			>
-				Log out
-			</Button>
 		</Stack>
 	);
 
