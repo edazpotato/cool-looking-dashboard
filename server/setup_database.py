@@ -1,15 +1,26 @@
 import sqlite3
 import os
 
+# Ensure that the directory that houses the database exists.
 db_path = "db"
-
 if (not os.path.exists(db_path)):
 	os.makedirs(db_path)
 
+# Connect to the database and get a cursor that can be used 
+#   to execute SQL queries.
 db = sqlite3.connect(f"{db_path}/datameridian.db")
 cursor = db.cursor()
 
+# Below is the code that generates all the tables in the database.
+# Each table is in it's own try/except block so that one query
+#   failing won't cause the other to fail.
+# The induviual queries are expected to fail if they have already
+#   been created in the database.
+
+#
 # URL ALiases
+#
+
 try:
 	cursor.execute("""
 	CREATE TABLE "url_aliases" (
@@ -30,7 +41,13 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
+#
 # Notes
+# 	These will be used in the Kanban board system,
+# 	  in adition to being used in their own section of
+# 	  the dashboard.
+#
+
 try:
 	cursor.execute("""
 	CREATE TABLE "notes" (
@@ -46,8 +63,13 @@ try:
 	print("Created notes table")
 except Exception as e:
 	print(f"Exception occured: {e}")
-
+#
 # Todo lists
+# 	These will be used in the Kanban board system,
+# 	  in adition to being used in their own section of
+# 	  the dashboard.
+#
+
 try:
 	cursor.execute("""
 	CREATE TABLE "todo_lists" (
@@ -81,8 +103,22 @@ try:
 	print("Created todo_items table")
 except Exception as e:
 	print(f"Exception occured: {e}")
-
+#
 # Boards
+# 	The fabled Kanban board system!
+# 	This series of tables enables a system of "boards",
+# 	  each consisting of several columns ("categories"),
+# 	  which are filled with cards ("items") that can
+#	  have todo-lists or notes (see above tables)
+# 	  attached to them to add more information and can also
+#	  be given "tags" (which have a colour and a name) to
+# 	  help with sorting.
+#
+#   The naming, which may seem strange at first, is to 
+#	  enable these same tables and posibly the same python
+# 	  code to be used for a Gantt Chart system.
+#
+
 try:
 	cursor.execute("""
 	CREATE TABLE "boards" (
@@ -116,6 +152,9 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
+# These board items have start-dates and end-dates
+#   because eventually they'll also be tasks on
+#   Gannt Charts.
 try:
 	cursor.execute("""
 	CREATE TABLE "board_items" (
@@ -157,6 +196,10 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
+# This extra table is to model the many-to-many relationship between
+# 	board items and the tags attached to them.
+# Each tag can be attached to multiple board items, and each board
+# 	item can have multiple tags attached to it.
 try:
 	cursor.execute("""
 	CREATE TABLE "board_items_tags_link" (
@@ -172,5 +215,6 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
+# Close database connection.
 db.close()
 exit()
