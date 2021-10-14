@@ -50,7 +50,7 @@ export function NotesPage() {
 				</Button>
 			</Toolbar>
 
-			{/* {error ? (
+			{error ? (
 				<Alert severity="error">
 					{typeof error === "string" ? (
 						<>
@@ -64,18 +64,21 @@ export function NotesPage() {
 			) : loading ? (
 				<Alert severity="info">Loading notes...</Alert>
 			) : (
-				data !== null &&
-				data.data.map((note: NoteType) => {
-					console.log(note);
-					return (
+				data &&
+				"data" in data &&
+				Array.isArray(data.data) &&
+				(data.data.length < 1 ? (
+					<Alert severity="info">No notes.</Alert>
+				) : (
+					data.data.map((note: NoteType) => (
 						<Note
 							key={note.id}
 							data={note}
 							setFetchData={setData}
 						/>
-					);
-				})()
-			)} */}
+					))
+				))
+			)}
 		</Stack>
 	) : (
 		<Typography>
