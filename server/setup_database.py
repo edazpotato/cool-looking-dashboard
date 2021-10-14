@@ -215,6 +215,6 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
-# Close database connection.
+# Close the database connection.
 db.close()
 exit()
