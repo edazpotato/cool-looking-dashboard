@@ -17,9 +17,9 @@ cursor = db.cursor()
 # The induviual queries are expected to fail if they have already
 #   been created in the database.
 
-#
+###############
 # URL ALiases
-#
+###############
 
 try:
 	cursor.execute("""
@@ -41,12 +41,12 @@ try:
 except Exception as e:
 	print(f"Exception occured: {e}")
 
-#
+###############
 # Notes
 # 	These will be used in the Kanban board system,
 # 	  in adition to being used in their own section of
 # 	  the dashboard.
-#
+###############
 
 try:
 	cursor.execute("""
@@ -63,12 +63,12 @@ try:
 	print("Created notes table")
 except Exception as e:
 	print(f"Exception occured: {e}")
-#
+###############
 # Todo lists
 # 	These will be used in the Kanban board system,
 # 	  in adition to being used in their own section of
 # 	  the dashboard.
-#
+###############
 
 try:
 	cursor.execute("""
@@ -103,7 +103,7 @@ try:
 	print("Created todo_items table")
 except Exception as e:
 	print(f"Exception occured: {e}")
-#
+###############
 # Boards
 # 	The fabled Kanban board system!
 # 	This series of tables enables a system of "boards",
@@ -117,7 +117,7 @@ except Exception as e:
 #   The naming, which may seem strange at first, is to 
 #	  enable these same tables and posibly the same python
 # 	  code to be used for a Gantt Chart system.
-#
+###############
 
 try:
 	cursor.execute("""
