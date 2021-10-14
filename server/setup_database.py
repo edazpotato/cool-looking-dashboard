@@ -1,3 +1,6 @@
+# This script is used for setting up tables in the database,
+#   and also for refenceing column names / indexes.
+
 import sqlite3
 import os
 
