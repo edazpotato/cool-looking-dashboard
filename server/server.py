@@ -7,10 +7,14 @@ from pydantic import BaseModel
 import secrets
 import sqlite3
 import time
+import math
 import re
 import os
 
 print("Make sure to run this using the scripts, not directly with python!")
+
+def db_safe_current_time() -> int:
+	return math.floor(time.time()*1000)
 
 not_sus_website = "https://wikipedia.org/"
 
@@ -160,8 +164,8 @@ async def create_url_alias(request: Request, response: Response, alias: URLAlias
 		cursor.execute("""INSERT INTO url_aliases
 		(alias_slug, canonical_url, created_at, uses, meta_title, meta_description, meta_colour, updated_at)
 		values (:slug, :canonical_url, :created_at, :uses, :meta_title, :meta_description, :meta_colour, :updated_at)""",
-			{"slug": alias.slug, "canonical_url": alias.canonical_url, "created_at": time.time(), "uses": 0, "meta_title": alias.meta_title,
-				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": time.time()})
+			{"slug": alias.slug, "canonical_url": alias.canonical_url, "created_at": db_safe_current_time(), "uses": 0, "meta_title": alias.meta_title,
+				"meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": db_safe_current_time()})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
@@ -178,7 +182,7 @@ async def update_url_alias(request: Request, response: Response, alias: URLAlias
 		cursor.execute("""UPDATE url_aliases SET 
 		alias_slug=:slug, canonical_url=:canonical_url, meta_title=:meta_title, meta_description=:meta_description, meta_colour=:meta_colour, updated_at=:updated_at
 		WHERE id=:id""",
-			{"slug": alias.slug, "canonical_url": alias.canonical_url, "meta_title": alias.meta_title, "meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": time.time(), "id": id})
+			{"slug": alias.slug, "canonical_url": alias.canonical_url, "meta_title": alias.meta_title, "meta_description": alias.meta_description, "meta_colour": alias.meta_colour, "updated_at": db_safe_current_time(), "id": id})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
@@ -242,7 +246,7 @@ async def create_todo_list(request: Request, response: Response, todo_list: Todo
 		cursor.execute("""INSERT INTO todo_lists
 		(title, created_at, updated_at)
 		values (:title, :created_at, :updated_at)""",
-			{"title": todo_list.title, "created_at": time.time(), "updated_at": time.time()})
+			{"title": todo_list.title, "created_at": db_safe_current_time(), "updated_at": db_safe_current_time()})
 		db.commit()
 		cursor.execute("SELECT MAX(id) FROM todo_lists")
 		new_todo_list = cursor.fetchone()
@@ -296,7 +300,7 @@ async def edit_todo_list(request: Request, response: Response, todo_list: TodoLi
 		cursor.execute("""UPDATE todo_lists SET 
 		title=:title, updated_at=:updated_at
 		WHERE id=:todo_list_id""",
-			{"title": todo_list.title, "updated_at": time.time(), "todo_list_id": todo_list_id})
+			{"title": todo_list.title, "updated_at": db_safe_current_time(), "todo_list_id": todo_list_id})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
@@ -327,11 +331,11 @@ async def add_todo_list_item(request: Request, response: Response, todo_list_id:
 	try:
 		completed_at = ""
 		if todo_item.completed:
-			completed_at = time.time()
+			completed_at = db_safe_current_time()
 		cursor.execute("""INSERT INTO todo_items
 		(todo_list_id, completed, content, added_at, completed_at, updated_at)
 		values (:todo_list_id, :is_completed, :content, :added, :completed, :updated_at)""",
-		{"todo_list_id": todo_list_id, "is_completed": 1 if todo_item.completed else 0, "content": todo_item.content, "added": time.time(), "completed": completed_at, "updated_at": time.time()})
+		{"todo_list_id": todo_list_id, "is_completed": 1 if todo_item.completed else 0, "content": todo_item.content, "added": db_safe_current_time(), "completed": completed_at, "updated_at": db_safe_current_time()})
 		db.commit()
 		cursor.execute("SELECT MAX(id) FROM todo_items")
 		new_todo_item = cursor.fetchone()
@@ -350,11 +354,11 @@ async def edit_todo_list_item(request: Request, response: Response, todo_list_id
 	try:
 		completed_at = ""
 		if todo_item.completed:
-			completed_at = time.time()
+			completed_at = db_safe_current_time()
 		cursor.execute("""UPDATE todo_items SET 
 		content=:content, completed=:is_completed, completed_at=:completed_at, updated_at=:updated_at
 		WHERE todo_list_id=:todo_list_id AND id=:todo_item_id""",
-			{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id, "content": todo_item.content, "is_completed": 1 if todo_item.completed else 0, "completed_at": completed_at, "updated_at": time.time()})
+			{"todo_list_id": todo_list_id, "todo_item_id": todo_item_id, "content": todo_item.content, "is_completed": 1 if todo_item.completed else 0, "completed_at": completed_at, "updated_at": db_safe_current_time()})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
@@ -414,7 +418,7 @@ async def create_new_note(request: Request, response: Response, note: Note):
 		
 		cursor.execute("""INSERT INTO notes (title, content, created_at, updated_at)
 									VALUES (:title, :content, :created, :updated)""",
-									{"title": note.title, "content": note.content, "created": time.time(), "updated": time.time()})
+									{"title": note.title, "content": note.content, "created": db_safe_current_time(), "updated": db_safe_current_time()})
 		db.commit()
 		id = cursor.execute("SELECT MAX(id) FROM todo_lists").fetchone()
 		return {"error": False, "data": {"id": id}}
@@ -431,7 +435,7 @@ async def edit_note(request: Request, response: Response, id: str, note: Note):
 	try:
 		
 		cursor.execute("UPDATE notes SET title=:title, content=:content, updated_at=:updated_at WHERE id=:id",
-					{"title":note.title, "content": note.content, "updated_at": time.time(), "id": id})
+					{"title":note.title, "content": note.content, "updated_at": db_safe_current_time(), "id": id})
 		db.commit()
 		return {"error": False}
 	except Exception as e:
