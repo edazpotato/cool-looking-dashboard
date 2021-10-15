@@ -263,10 +263,10 @@ async def get_all_todo_lists(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get all the todo lists."}
 	try:
 		todo_lists = []
-		db_todo_lists = cursor.execute("SELECT * FROM todo_lists ORDER BY updated_at DESC").fetchall()
+		db_todo_lists = cursor.execute("SELECT * FROM todo_lists ORDER BY created_at ASC").fetchall()
 		for todo_list in db_todo_lists:
 			todo_items = []
-			db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at DESC", {"todo_list_id": todo_list[0]}).fetchall()
+			db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at ASC", {"todo_list_id": todo_list[0]}).fetchall()
 			for todo_item in db_todo_items:
 				todo_items.append({
 					"id": todo_item[0],
@@ -393,7 +393,7 @@ async def get_all_notes(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get all the notes."}
 	try:
 		notes = []
-		db_notes = cursor.execute("SELECT * FROM notes ORDER BY created_at DESC").fetchall()
+		db_notes = cursor.execute("SELECT * FROM notes ORDER BY created_at ASC").fetchall()
 		for note in db_notes:
 			# print(alias)
 			notes.append({
@@ -468,7 +468,7 @@ async def get_list_of_boards(request: Request, response: Response):
 		return {"error": True, "detail": "You don't have clearance to get a list of the boards."}
 	try:
 		boards = []
-		db_boards = cursor.execute("SELECT * FROM boards ORDER BY created_at DESC").fetchall()
+		db_boards = cursor.execute("SELECT * FROM boards ORDER BY created_at ASC").fetchall()
 		for board in db_boards:
 			board_id = board[0]
 			categories = cursor.execute("SELECT id, count(*) FROM board_categories WHERE board_id=:id", {"id": board_id}).fetchone()

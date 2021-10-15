@@ -8,6 +8,7 @@ import {
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
+	Grow,
 	IconButton,
 	List,
 	ListItem,
@@ -29,6 +30,7 @@ import AddTaskIcon from "@mui/icons-material/AddTaskSharp";
 import DeleteIcon from "@mui/icons-material/DeleteSharp";
 import DoneIcon from "@mui/icons-material/DoneSharp";
 import EditIcon from "@mui/icons-material/EditSharp";
+import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../../data";
 import { useSnackbar } from "notistack";
 
@@ -95,22 +97,26 @@ export const Todos = forwardRef((_, ref: ForwardedRef<any>) => {
 			) : (
 				data &&
 				"data" in data && (
-					<>
+					<TransitionGroup>
 						{data.data.length < 1 && (
-							<ListItem>
-								<Alert severity="info">
-									There aren{"'"}t any todo lists.
-								</Alert>
-							</ListItem>
+							<Grow>
+								<ListItem>
+									<Alert severity="info">
+										There aren{"'"}t any todo lists.
+									</Alert>
+								</ListItem>
+							</Grow>
 						)}
 						{data.data.map((todoList: TodoListType) => (
-							<TodoList
-								key={todoList.id}
-								data={todoList}
-								setFetchData={setData}
-							/>
+							<Grow>
+								<TodoList
+									key={todoList.id}
+									data={todoList}
+									setFetchData={setData}
+								/>
+							</Grow>
 						))}
-					</>
+					</TransitionGroup>
 				)
 			)}
 			<NewTodolistDialog
@@ -134,208 +140,217 @@ interface TodoListProps {
 	setFetchData: any;
 }
 
-function TodoList({ data, setFetchData }: TodoListProps) {
-	const [user] = useContext(UserContext);
-	const [editingTitle, setEditingTitle] = useState(false);
-	const [tempTitle, setTempTitle] = useState(data.title);
-	const [newTodoItemText, setNewTodoItemText] = useState("");
+const TodoList = forwardRef(
+	({ data, setFetchData }: TodoListProps, ref: ForwardedRef<any>) => {
+		const [user] = useContext(UserContext);
+		const [editingTitle, setEditingTitle] = useState(false);
+		const [tempTitle, setTempTitle] = useState(data.title);
+		const [newTodoItemText, setNewTodoItemText] = useState("");
 
-	function onNewTodoAdd(e: any) {
-		e?.preventDefault();
+		function onNewTodoAdd(e: any) {
+			e?.preventDefault();
 
-		callAPI(`todos/${data.id}`, user.loggedIn ? user.token : undefined, {
-			method: "POST",
-			body: JSON.stringify({
-				completed: false,
-				content: newTodoItemText,
-			}),
-		})
-			.then((res) => {
-				if (!res) return;
-				if (!("data" in res)) return;
-				console.log("e", res);
-				setFetchData((oldFetchData: any) => {
-					try {
-						document
-							.getElementById(
-								`new-todo-item-for-todo-list-${data.id}`
-							)
-							?.focus();
-					} catch {}
-					const d = {
-						...oldFetchData,
-						data: [
-							{
-								...data,
-								todos: [
-									{
-										id: res.data.id,
-										is_completed: false,
-										completed: null,
-										content: newTodoItemText,
-										added: Date.now(),
-										updated: Date.now(),
-									},
-									...data.todos.filter(
-										(thing: TodoListItemType) =>
-											thing.id !== res.data.id
-									),
-								],
-							},
-							...oldFetchData.data.filter(
-								(thing: TodoListType) => thing.id !== data.id
-							),
-						],
-					};
-					console.log(d);
-					return d;
-				});
-				setNewTodoItemText("");
-			})
-			.catch(console.warn);
-	}
-
-	return (
-		<Paper sx={{ p: 4, m: 4, overflow: "auto" }}>
-			<Stack>
-				<Stack direction="row">
-					{editingTitle ? (
-						<TextField
-							sx={{
-								"& > .MuiOutlinedInput-root > .MuiInputBase-input":
-									{
-										p: 0,
-										fontSize: "2rem",
-									},
-							}}
-							value={tempTitle}
-							onChange={(e) => setTempTitle(e.target.value)}
-							autoComplete="off"
-						/>
-					) : (
-						<Typography variant="h4">
-							{data.title.slice(0, 5)}
-						</Typography>
-					)}
-					<IconButton
-						sx={{ ml: 2 }}
-						onClick={() => {
-							if (!editingTitle) {
-								setEditingTitle(true);
-							} else {
-								if (data.title === tempTitle) {
-									setEditingTitle(false);
-								} else {
-									callAPI(
-										`todos/${data.id}`,
-										user.loggedIn ? user.token : undefined,
+			callAPI(
+				`todos/${data.id}`,
+				user.loggedIn ? user.token : undefined,
+				{
+					method: "POST",
+					body: JSON.stringify({
+						completed: false,
+						content: newTodoItemText,
+					}),
+				}
+			)
+				.then((res) => {
+					if (!res) return;
+					if (!("data" in res)) return;
+					console.log("e", res);
+					setFetchData((oldFetchData: any) => {
+						try {
+							document
+								.getElementById(
+									`new-todo-item-for-todo-list-${data.id}`
+								)
+								?.focus();
+						} catch {}
+						const d = {
+							...oldFetchData,
+							data: [
+								{
+									...data,
+									todos: [
+										...data.todos,
 										{
-											method: "PATCH",
-											body: JSON.stringify({
-												title: tempTitle,
-											}),
-										}
-									)
-										.catch(console.warn)
-										.then(() => {
-											setFetchData(
-												(oldFetchData: any) => ({
-													...oldFetchData,
-													data: [
-														{
-															...data,
-															title: tempTitle,
-														},
-														...oldFetchData.data.filter(
-															(
-																thing: TodoListType
-															) =>
-																thing.id !==
-																data.id
-														),
-													],
-												})
-											);
-											setEditingTitle(false);
-										});
-								}
-							}
-						}}
-					>
-						{editingTitle ? <DoneIcon /> : <EditIcon />}
-					</IconButton>
-					<Button
-						sx={{ ml: "auto" }}
-						color="error"
-						variant="contained"
-						onClick={() => {
-							callAPI(
-								`todos/${data.id}`,
-								user.loggedIn ? user.token : undefined,
-								{ method: "DELETE" }
-							)
-								.then((res) => {
-									setFetchData((oldFetchData: any) => ({
-										...oldFetchData,
-										data: oldFetchData.data.filter(
-											(thing: TodoListType) =>
-												thing.id !== data.id
-										),
-									}));
-								})
-								.catch(console.warn);
-						}}
-					>
-						Delete
-					</Button>
-				</Stack>
+											id: res.data.id,
+											is_completed: false,
+											completed: null,
+											content: newTodoItemText,
+											added: Date.now(),
+											updated: Date.now(),
+										},
+									],
+								},
+								...oldFetchData.data.filter(
+									(thing: TodoListType) =>
+										thing.id !== data.id
+								),
+							],
+						};
+						console.log(d);
+						return d;
+					});
+					setNewTodoItemText("");
+				})
+				.catch(console.warn);
+		}
 
-				<Stack direction="row" sx={{ mt: 4 }}>
-					<form
-						action="#/todos"
-						style={{ flex: 1 }}
-						onSubmit={onNewTodoAdd}
-					>
-						<TextField
-							value={newTodoItemText}
-							onChange={(e) => setNewTodoItemText(e.target.value)}
-							fullWidth
-							label="New todo item"
-							variant="standard"
-							id={`new-todo-item-for-todo-list-${data.id}`}
-							autoComplete="off"
-						/>
-					</form>
-					<IconButton
-						disabled={newTodoItemText.length < 1}
-						size="large"
-						edge="end"
-						onClick={onNewTodoAdd}
-					>
-						<AddTaskIcon sx={{ transform: "scale(1.3)" }} />
-					</IconButton>
+		return (
+			<Paper ref={ref} sx={{ p: 4, m: 4, overflow: "auto" }}>
+				<Stack>
+					<Stack direction="row">
+						{editingTitle ? (
+							<TextField
+								sx={{
+									"& > .MuiOutlinedInput-root > .MuiInputBase-input":
+										{
+											p: 0,
+											fontSize: "2rem",
+										},
+								}}
+								value={tempTitle}
+								onChange={(e) => setTempTitle(e.target.value)}
+								autoComplete="off"
+							/>
+						) : (
+							<Typography variant="h4">
+								{data.title.slice(0, 5)}
+							</Typography>
+						)}
+						<IconButton
+							sx={{ ml: 2 }}
+							onClick={() => {
+								if (!editingTitle) {
+									setEditingTitle(true);
+								} else {
+									if (data.title === tempTitle) {
+										setEditingTitle(false);
+									} else {
+										callAPI(
+											`todos/${data.id}`,
+											user.loggedIn
+												? user.token
+												: undefined,
+											{
+												method: "PATCH",
+												body: JSON.stringify({
+													title: tempTitle,
+												}),
+											}
+										)
+											.catch(console.warn)
+											.then(() => {
+												setFetchData(
+													(oldFetchData: any) => ({
+														...oldFetchData,
+														data: [
+															...oldFetchData.data.filter(
+																(
+																	thing: TodoListType
+																) =>
+																	thing.id !==
+																	data.id
+															),
+															{
+																...data,
+																title: tempTitle,
+															},
+														],
+													})
+												);
+												setEditingTitle(false);
+											});
+									}
+								}
+							}}
+						>
+							{editingTitle ? <DoneIcon /> : <EditIcon />}
+						</IconButton>
+						<Button
+							sx={{ ml: "auto" }}
+							color="error"
+							variant="contained"
+							onClick={() => {
+								callAPI(
+									`todos/${data.id}`,
+									user.loggedIn ? user.token : undefined,
+									{ method: "DELETE" }
+								)
+									.then((res) => {
+										setFetchData((oldFetchData: any) => ({
+											...oldFetchData,
+											data: oldFetchData.data.filter(
+												(thing: TodoListType) =>
+													thing.id !== data.id
+											),
+										}));
+									})
+									.catch(console.warn);
+							}}
+						>
+							Delete
+						</Button>
+					</Stack>
+
+					<Stack direction="row" sx={{ mt: 4 }}>
+						<form
+							action="#/todos"
+							style={{ flex: 1 }}
+							onSubmit={onNewTodoAdd}
+						>
+							<TextField
+								value={newTodoItemText}
+								onChange={(e) =>
+									setNewTodoItemText(e.target.value)
+								}
+								fullWidth
+								label="New todo item"
+								variant="standard"
+								id={`new-todo-item-for-todo-list-${data.id}`}
+								autoComplete="off"
+							/>
+						</form>
+						<IconButton
+							disabled={newTodoItemText.length < 1}
+							size="large"
+							edge="end"
+							onClick={onNewTodoAdd}
+						>
+							<AddTaskIcon sx={{ transform: "scale(1.3)" }} />
+						</IconButton>
+					</Stack>
+					<List sx={{ maxHeight: 250, overflowY: "auto" }}>
+						{data.todos.length < 1 && (
+							<ListItem>
+								<Alert severity="info">
+									There aren{"'"}t any items in this todo
+									list.
+								</Alert>
+							</ListItem>
+						)}
+						{data.todos.map((todo) => (
+							<TodoListItem
+								key={todo.id}
+								data={todo}
+								setFetchData={setFetchData}
+								todoListData={data}
+							/>
+						))}
+					</List>
 				</Stack>
-				<List sx={{ maxHeight: 250, overflowY: "auto" }}>
-					{data.todos.length < 1 && (
-						<ListItem>
-							<Alert severity="info">
-								There aren{"'"}t any items in this todo list.
-							</Alert>
-						</ListItem>
-					)}
-					{data.todos.map((todo) => (
-						<TodoListItem
-							key={todo.id}
-							data={todo}
-							setFetchData={setFetchData}
-							todoListData={data}
-						/>
-					))}
-				</List>
-			</Stack>
-		</Paper>
-	);
-}
+			</Paper>
+		);
+	}
+);
 
 interface TodoListItemProps {
 	data: TodoListItemType;

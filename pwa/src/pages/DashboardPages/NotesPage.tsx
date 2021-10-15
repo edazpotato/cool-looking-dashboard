@@ -7,6 +7,7 @@ import {
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
+	Grow,
 	Paper,
 	Stack,
 	TextField,
@@ -18,6 +19,7 @@ import {
 import { ForwardedRef, forwardRef, useContext, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
 
+import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../../data";
 import { useSnackbar } from "notistack";
 
@@ -62,36 +64,43 @@ export const NotesPage = forwardRef((_, ref: ForwardedRef<any>) => {
 					New note
 				</Button>
 			</Toolbar>
-
-			{error ? (
-				<Alert severity="error">
-					{typeof error === "string" ? (
-						<>
-							<AlertTitle>Error loading notes</AlertTitle>
-							{error}
-						</>
-					) : (
-						<>Error loading notes</>
-					)}
-				</Alert>
-			) : loading ? (
-				<Alert severity="info">Loading notes...</Alert>
-			) : (
-				data &&
-				"data" in data &&
-				Array.isArray(data.data) &&
-				(data.data.length < 1 ? (
-					<Alert severity="info">No notes.</Alert>
+			<TransitionGroup>
+				{error ? (
+					<Grow>
+						<Alert severity="error">
+							{typeof error === "string" ? (
+								<>
+									<AlertTitle>Error loading notes</AlertTitle>
+									{error}
+								</>
+							) : (
+								<>Error loading notes</>
+							)}
+						</Alert>
+					</Grow>
+				) : loading ? (
+					<Grow>
+						<Alert severity="info">Loading notes...</Alert>
+					</Grow>
 				) : (
-					data.data.map((note: NoteType) => (
-						<Note
-							key={note.id}
-							data={note}
-							setFetchData={setData}
-						/>
+					data &&
+					"data" in data &&
+					Array.isArray(data.data) &&
+					(data.data.length < 1 ? (
+						<Alert severity="info">No notes.</Alert>
+					) : (
+						data.data.map((note: NoteType) => (
+							<Grow>
+								<Note
+									key={note.id}
+									data={note}
+									setFetchData={setData}
+								/>
+							</Grow>
+						))
 					))
-				))
-			)}
+				)}
+			</TransitionGroup>
 		</Stack>
 	) : (
 		<Typography ref={ref}>
@@ -106,24 +115,71 @@ interface NoteProps {
 	setFetchData: any;
 }
 
-function Note({ data, setFetchData }: NoteProps) {
-	const [user] = useContext(UserContext);
-	const [content, setContent] = useState(data.content);
-	return (
-		<Paper sx={{ p: 4, mb: 4 }}>
-			{user.loggedIn ? (
-				<Stack>
-					<Stack direction="row" sx={{ alignItems: "center" }}>
-						<Typography>{data.title.slice(0, 20)}</Typography>
+const Note = forwardRef(
+	({ data, setFetchData }: NoteProps, ref: ForwardedRef<any>) => {
+		const [user] = useContext(UserContext);
+		const [content, setContent] = useState(data.content);
+		return (
+			<Paper ref={ref} sx={{ p: 4, mb: 4 }}>
+				{user.loggedIn ? (
+					<Stack>
+						<Stack direction="row" sx={{ alignItems: "center" }}>
+							<Typography>{data.title.slice(0, 20)}</Typography>
+							<Button
+								sx={{ ml: "auto" }}
+								variant="contained"
+								color="error"
+								onClick={() => {
+									callAPI(
+										`notes/${data.id}`,
+										user.loggedIn ? user.token : undefined,
+										{ method: "DELETE" }
+									)
+										.then((res) => {
+											setFetchData(
+												(oldFetchData: {
+													data: NoteType[];
+													[x: string]: any;
+												}) => ({
+													...oldFetchData,
+													data: oldFetchData.data.filter(
+														(thing) =>
+															thing.id !== data.id
+													),
+												})
+											);
+										})
+										.catch(console.warn);
+								}}
+							>
+								Delete note
+							</Button>
+						</Stack>
+						<TextField
+							label="▼ ▼ ▼ Note goes down here ▼ ▼ ▼"
+							sx={{
+								mt: 2,
+							}}
+							rows={10}
+							multiline
+							fullWidth
+							value={content}
+							onChange={(e) => setContent(e.target.value)}
+						/>
 						<Button
-							sx={{ ml: "auto" }}
-							variant="contained"
-							color="error"
+							sx={{ mt: 4, alignSelf: "flex-start" }}
+							disabled={content === data.content}
 							onClick={() => {
 								callAPI(
 									`notes/${data.id}`,
 									user.loggedIn ? user.token : undefined,
-									{ method: "DELETE" }
+									{
+										method: "PATCH",
+										body: JSON.stringify({
+											title: data.title,
+											content,
+										}),
+									}
 								)
 									.then((res) => {
 										setFetchData(
@@ -132,9 +188,18 @@ function Note({ data, setFetchData }: NoteProps) {
 												[x: string]: any;
 											}) => ({
 												...oldFetchData,
-												data: oldFetchData.data.filter(
-													(thing) =>
-														thing.id !== data.id
+												data: oldFetchData.data.map(
+													(thing) => {
+														if (
+															thing.id !== data.id
+														)
+															return thing;
+														return {
+															...thing,
+															title: data.title,
+															content,
+														};
+													}
 												),
 											})
 										);
@@ -142,71 +207,19 @@ function Note({ data, setFetchData }: NoteProps) {
 									.catch(console.warn);
 							}}
 						>
-							Delete note
+							Save changes
 						</Button>
 					</Stack>
-					<TextField
-						label="▼ ▼ ▼ Note goes down here ▼ ▼ ▼"
-						sx={{
-							mt: 2,
-						}}
-						rows={10}
-						multiline
-						fullWidth
-						value={content}
-						onChange={(e) => setContent(e.target.value)}
-					/>
-					<Button
-						sx={{ mt: 4, alignSelf: "flex-start" }}
-						disabled={content === data.content}
-						onClick={() => {
-							callAPI(
-								`notes/${data.id}`,
-								user.loggedIn ? user.token : undefined,
-								{
-									method: "PATCH",
-									body: JSON.stringify({
-										title: data.title,
-										content,
-									}),
-								}
-							)
-								.then((res) => {
-									setFetchData(
-										(oldFetchData: {
-											data: NoteType[];
-											[x: string]: any;
-										}) => ({
-											...oldFetchData,
-											data: oldFetchData.data.map(
-												(thing) => {
-													if (thing.id !== data.id)
-														return thing;
-													return {
-														...thing,
-														title: data.title,
-														content,
-													};
-												}
-											),
-										})
-									);
-								})
-								.catch(console.warn);
-						}}
-					>
-						Save changes
-					</Button>
-				</Stack>
-			) : (
-				<Typography>
-					You{"'"}re trying to render a note, but you{"'"}re not
-					logged in.
-				</Typography>
-			)}
-		</Paper>
-	);
-}
+				) : (
+					<Typography>
+						You{"'"}re trying to render a note, but you{"'"}re not
+						logged in.
+					</Typography>
+				)}
+			</Paper>
+		);
+	}
+);
 
 function NewNoteDialog({
 	open,
