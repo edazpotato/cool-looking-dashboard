@@ -1,7 +1,7 @@
 import {
 	Box,
 	Button,
-	CSSObject,
+	Collapse,
 	Divider,
 	Drawer,
 	IconButton,
@@ -18,7 +18,7 @@ import {
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
-import { useContext, useState } from "react";
+import { forwardRef, useContext, useState } from "react";
 
 import ArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeftSharp";
 import ArrowRightIcon from "@mui/icons-material/KeyboardArrowRightSharp";
@@ -29,6 +29,7 @@ import LinkIcon from "@mui/icons-material/LinkSharp";
 import ListIcon from "@mui/icons-material/ListSharp";
 import LogoutIcon from "@mui/icons-material/LogoutSharp";
 import StickyNoteIcon from "@mui/icons-material/StickyNote2Sharp";
+import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../data";
 import { logout } from "../utils";
 import { useHistory } from "react-router-dom";
@@ -95,8 +96,9 @@ export function Sidebar({
 		typeof navigator !== "undefined" &&
 		/iPad|iPhone|iPod/.test(navigator.userAgent);
 
-	const drawerContent = (
+	const DrawerContent = forwardRef((_, ref) => (
 		<Stack
+			ref={ref}
 			sx={{
 				flex: 1,
 				mb: 4,
@@ -113,6 +115,9 @@ export function Sidebar({
 					{onDesktop ? (
 						<Box sx={{ ml: "auto" }}>
 							<Tooltip
+								placement={
+									desktopExpanded ? undefined : "right"
+								}
 								title={
 									desktopExpanded
 										? "Collapse sidebar"
@@ -153,7 +158,7 @@ export function Sidebar({
 			{onDesktop && !desktopExpanded ? (
 				<>
 					<Divider />
-					<Tooltip title="Log out">
+					<Tooltip title="Log out" placement="right">
 						<IconButton
 							onClick={() => {
 								logout(user, setUser, true);
@@ -194,28 +199,30 @@ export function Sidebar({
 							</ListItem>
 					  ))
 					: pages.map((page) => (
-							<ListItem
-								sx={{
-									"& > .MuiListItemIcon-root": {
-										justifyContent: "center",
-									},
-								}}
-								button
-								key={page.slug}
-								onClick={() => {
-									history.push(page.slug);
-									!onDesktop && onMobileClose();
-								}}
-								selected={selectedPage === page.slug}
-							>
-								<ListItemIcon>
-									<page.Icon />
-								</ListItemIcon>
-							</ListItem>
+							<Tooltip title={page.text} placement="right">
+								<ListItem
+									sx={{
+										"& > .MuiListItemIcon-root": {
+											justifyContent: "center",
+										},
+									}}
+									button
+									key={page.slug}
+									onClick={() => {
+										history.push(page.slug);
+										!onDesktop && onMobileClose();
+									}}
+									selected={selectedPage === page.slug}
+								>
+									<ListItemIcon>
+										<page.Icon />
+									</ListItemIcon>
+								</ListItem>
+							</Tooltip>
 					  ))}
 			</List>
 		</Stack>
-	);
+	));
 
 	return (
 		<>
@@ -244,27 +251,35 @@ export function Sidebar({
 						},
 					}}
 				>
-					{drawerContent}
+					<DrawerContent />
 				</SwipeableDrawer>
 			) : (
-				<Drawer
-					variant="permanent"
-					sx={{
-						width: desktopExpanded
-							? sidebarWidth
-							: collapsedSidebarWidth,
-						overflowX: "hidden",
-						"& .MuiDrawer-paper": {
-							boxSizing: "border-box",
-							width: desktopExpanded
-								? sidebarWidth
-								: collapsedSidebarWidth,
-						},
-					}}
-					open={desktopExpanded}
-				>
-					{drawerContent}
-				</Drawer>
+				<TransitionGroup>
+					<Collapse
+						orientation="horizontal"
+						in={desktopExpanded}
+						collapsedSize={collapsedSidebarWidth}
+					>
+						<Drawer
+							variant="permanent"
+							sx={{
+								width: sidebarWidth, //desktopExpanded
+								// 	? sidebarWidth
+								// 	: collapsedSidebarWidth,
+								overflowX: "hidden",
+								"& .MuiDrawer-paper": {
+									boxSizing: "border-box",
+									width: desktopExpanded
+										? sidebarWidth
+										: collapsedSidebarWidth,
+								},
+							}}
+							// open={desktopExpanded}
+						>
+							<DrawerContent />
+						</Drawer>
+					</Collapse>
+				</TransitionGroup>
 			)}
 		</>
 	);
