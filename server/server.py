@@ -456,11 +456,43 @@ async def delete_note(request: Request, response: Response, id: str):
 		print(e)
 		return {"error": True, "detail": str(e)}
 
+# Boards!!
+
+@api.get("/boards")
+async def get_list_of_boards(request: Request, response: Response):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to get a list of the boards."}
+	try:
+		boards = []
+		db_boards = cursor.execute("SELECT * FROM boards ORDER BY created_at DESC").fetchall()
+		for board in db_boards:
+			board_id = board[0]
+			categories = cursor.execute("SELECT id, count(*) FROM board_categories WHERE board_id=:id", {"id": board_id}).fetchone()
+			tags = cursor.execute("SELECT count(*) FROM board_tags WHERE board_id=:id", {"id": board_id}).fetchone()
+			items = cursor.execute("SELECT count(*) FROM board_items WHERE board_category_id=:id", {"id": categories[1]}).fetchone()
+			boards.append({
+				"id": board_id,
+				"title": board[1],
+				"created": board[2],
+				"updated": board[3],
+				"category_amount": categories[0],
+				"item_amount": items[0],
+				"tag_amount": tags[0],
+			})
+		return {"error": False, "data": boards}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+
 # Other setup
 
 app.include_router(api, prefix="/api")
 
 # Static files
+# These should only be served in production mode in order to avoid... issues...
 if "ENVIRONMENT" in os.environ and os.environ["ENVIRONMENT"] != "development":
 	# Make the base route return index.html
 	html_index_file = open(os.path.join("..", "pwa", "build", "index.html")).read()
