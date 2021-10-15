@@ -49,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@types/react-router-dom": "^5.3.0",
+		"@types/react-transition-group": "^4.4.3",
 		"@types/three": "^0.133.0",
 		"@types/use-persisted-state": "^0.3.0",
 		"http-proxy-middleware": "^2.0.1"

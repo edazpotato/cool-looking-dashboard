@@ -10,7 +10,6 @@ import {
 	ListItemIcon,
 	ListItemText,
 	Stack,
-	SvgIcon,
 	SwipeableDrawer,
 	Theme,
 	Tooltip,
@@ -22,48 +21,16 @@ import { forwardRef, useContext, useState } from "react";
 
 import ArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeftSharp";
 import ArrowRightIcon from "@mui/icons-material/KeyboardArrowRightSharp";
-import BoardIcon from "@mui/icons-material/DashboardSharp";
 import CloseIcon from "@mui/icons-material/CloseSharp";
-import HomeIcon from "@mui/icons-material/HomeSharp";
-import LinkIcon from "@mui/icons-material/LinkSharp";
-import ListIcon from "@mui/icons-material/ListSharp";
 import LogoutIcon from "@mui/icons-material/LogoutSharp";
-import StickyNoteIcon from "@mui/icons-material/StickyNote2Sharp";
 import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../data";
 import { logout } from "../utils";
+import { pages } from "../pages/Dashboard";
 import { useHistory } from "react-router-dom";
 
 export const sidebarWidth = 300;
 export const collapsedSidebarWidth = 73;
-
-const pages: { text: string; slug: string; Icon: typeof SvgIcon }[] = [
-	{
-		text: "Home",
-		slug: "/",
-		Icon: HomeIcon,
-	},
-	{
-		text: "Boards",
-		slug: "/boards",
-		Icon: BoardIcon,
-	},
-	{
-		text: "Notes",
-		slug: "/notes",
-		Icon: StickyNoteIcon,
-	},
-	{
-		text: "Todo lists",
-		slug: "/todos",
-		Icon: ListIcon,
-	},
-	{
-		text: "URL Aliases",
-		slug: "/url-alias",
-		Icon: LinkIcon,
-	},
-];
 
 interface SidebarProps {
 	mobileOpen: boolean;

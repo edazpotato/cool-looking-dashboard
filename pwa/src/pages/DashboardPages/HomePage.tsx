@@ -1,4 +1,5 @@
 import { ClockPanel, FFMPEGPanel, GlobePanel } from "./HomePagePanels";
+import { ForwardedRef, forwardRef, useContext } from "react";
 import {
 	Stack,
 	Toolbar,
@@ -8,15 +9,14 @@ import {
 } from "@mui/material";
 
 import { UserContext } from "../../data";
-import { useContext } from "react";
 
-export function HomePage() {
+export const HomePage = forwardRef((_, ref: ForwardedRef<any>) => {
 	const [user] = useContext(UserContext);
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
 	return user.loggedIn ? (
-		<Stack sx={{ px: 4, py: onDesktop ? 4 : 0 }} gap={4}>
+		<Stack ref={ref} sx={{ px: 4, py: onDesktop ? 4 : 0 }} gap={4}>
 			{!onDesktop && <Toolbar />}
 			<Stack
 				direction="row"
@@ -36,9 +36,9 @@ export function HomePage() {
 			</Typography>
 		</Stack>
 	) : (
-		<Typography>
+		<Typography ref={ref}>
 			Soemthing weird is happening. The dashboard homepage is trying to
 			render but you aren{"'"}t logged in.
 		</Typography>
 	);
-}
+});

@@ -1,5 +1,6 @@
 import {
 	Alert,
+	AlertTitle,
 	Button,
 	Checkbox,
 	Dialog,
@@ -16,12 +17,13 @@ import {
 	Paper,
 	Stack,
 	TextField,
+	Toolbar,
 	Typography,
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
+import { ForwardedRef, forwardRef, useContext, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
-import { useContext, useState } from "react";
 
 import AddTaskIcon from "@mui/icons-material/AddTaskSharp";
 import DeleteIcon from "@mui/icons-material/DeleteSharp";
@@ -47,7 +49,7 @@ interface TodoListType {
 	todos: TodoListItemType[];
 }
 
-export function Todos() {
+export const Todos = forwardRef((_, ref: ForwardedRef<any>) => {
 	const [user] = useContext(UserContext);
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
@@ -59,9 +61,10 @@ export function Todos() {
 	const [newTodoListDialogeOpen, setNewTodoListDialogeOpen] = useState(false);
 
 	return user.loggedIn ? (
-		<Stack>
-			<Stack direction="row" sx={{ ml: "auto", mr: 2, mt: 2, gap: 2 }}>
+		<Stack ref={ref}>
+			<Toolbar>
 				<Button
+					sx={{ ml: "auto" }}
 					color="secondary"
 					variant="contained"
 					onClick={() => makeRequest()}
@@ -69,18 +72,26 @@ export function Todos() {
 					Refresh data
 				</Button>
 				<Button
+					sx={{ ml: 4 }}
 					variant="contained"
 					onClick={() => setNewTodoListDialogeOpen(true)}
 				>
 					New todo list
 				</Button>
-			</Stack>
-			{loading ? (
-				<Typography>Loading...</Typography>
-			) : error ? (
-				<Typography>
-					An error occurred while loading the todo lists: {error}
-				</Typography>
+			</Toolbar>
+			{error ? (
+				<Alert severity="error">
+					{typeof error === "string" ? (
+						<>
+							<AlertTitle>Error loading todo-lists</AlertTitle>
+							{error}
+						</>
+					) : (
+						<>Error loading todo-lists</>
+					)}
+				</Alert>
+			) : loading ? (
+				<Alert severity="info">Loading todo-lists...</Alert>
 			) : (
 				data &&
 				"data" in data && (
@@ -111,12 +122,12 @@ export function Todos() {
 			/>
 		</Stack>
 	) : (
-		<Typography>
+		<Typography ref={ref}>
 			Something is very wrong. You aren{"'"}t logged in, but you{"'"}re
 			trying to look at the todo lists page.
 		</Typography>
 	);
-}
+});
 
 interface TodoListProps {
 	data: TodoListType;

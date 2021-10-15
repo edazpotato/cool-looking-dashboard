@@ -15,8 +15,8 @@ import {
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
+import { ForwardedRef, forwardRef, useContext, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
-import { useContext, useState } from "react";
 
 import { UserContext } from "../../data";
 import { useSnackbar } from "notistack";
@@ -29,7 +29,7 @@ interface NoteType {
 	updated: number;
 }
 
-export function NotesPage() {
+export const NotesPage = forwardRef((_, ref: ForwardedRef<any>) => {
 	const [user] = useContext(UserContext);
 	const [newNoteDialogOpen, setNewNoteDialogOpen] = useState(false);
 
@@ -39,7 +39,7 @@ export function NotesPage() {
 	);
 
 	return user.loggedIn ? (
-		<Stack sx={{ px: 4, pb: 4 }}>
+		<Stack ref={ref} sx={{ px: 4, pb: 4 }}>
 			<NewNoteDialog
 				open={newNoteDialogOpen}
 				setOpen={setNewNoteDialogOpen}
@@ -55,7 +55,7 @@ export function NotesPage() {
 					Refresh data
 				</Button>
 				<Button
-					sx={{ ml: 2 }}
+					sx={{ ml: 4 }}
 					variant="contained"
 					onClick={() => setNewNoteDialogOpen(true)}
 				>
@@ -94,12 +94,12 @@ export function NotesPage() {
 			)}
 		</Stack>
 	) : (
-		<Typography>
+		<Typography ref={ref}>
 			You{"'"}re trying to render the notes page, but you{"'"}re not
 			logged in.
 		</Typography>
 	);
-}
+});
 
 interface NoteProps {
 	data: NoteType;

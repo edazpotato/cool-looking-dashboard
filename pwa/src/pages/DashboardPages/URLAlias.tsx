@@ -14,12 +14,13 @@ import {
 	Skeleton,
 	Stack,
 	TextField,
+	Toolbar,
 	Typography,
 	useMediaQuery,
 	useTheme,
 } from "@mui/material";
+import { ForwardedRef, forwardRef, useContext, useRef, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
-import { useContext, useRef, useState } from "react";
 
 import { UserContext } from "../../data";
 
@@ -36,7 +37,7 @@ interface URLAliasType {
 	};
 }
 
-export function URLAlias() {
+export const URLAlias = forwardRef((_, ref: ForwardedRef<any>) => {
 	const [user] = useContext(UserContext);
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
@@ -57,9 +58,10 @@ export function URLAlias() {
 	const formRef = useRef<any>(null);
 
 	return user.loggedIn ? (
-		<Stack sx={{ width: "100%" }}>
-			<Stack direction="row" sx={{ ml: "auto", mr: 2, mt: 2, gap: 2 }}>
+		<Stack ref={ref} sx={{ width: "100%" }}>
+			<Toolbar>
 				<Button
+					sx={{ ml: "auto" }}
 					color="secondary"
 					variant="contained"
 					onClick={() => makeRequest()}
@@ -67,12 +69,13 @@ export function URLAlias() {
 					Refresh data
 				</Button>
 				<Button
+					sx={{ ml: 4 }}
 					variant="contained"
 					onClick={() => setNewAliasDialogOpen(true)}
 				>
 					New Alias
 				</Button>
-			</Stack>
+			</Toolbar>
 			<List>
 				{loading ? (
 					Object.keys(Array.from(Array(10))).map((key) => (
@@ -409,9 +412,9 @@ export function URLAlias() {
 			</Dialog>
 		</Stack>
 	) : (
-		<Typography>
+		<Typography ref={ref}>
 			Something is very wrong. You aren{"'"}t logged in, but you{"'"}re
 			trying to manage the URL aliases.
 		</Typography>
 	);
-}
+});
