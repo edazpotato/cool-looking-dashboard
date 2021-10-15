@@ -415,7 +415,6 @@ async def create_new_note(request: Request, response: Response, note: Note):
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have clearance to create a new note."}
 	try:
-		
 		cursor.execute("""INSERT INTO notes (title, content, created_at, updated_at)
 									VALUES (:title, :content, :created, :updated)""",
 									{"title": note.title, "content": note.content, "created": db_safe_current_time(), "updated": db_safe_current_time()})
@@ -458,6 +457,9 @@ async def delete_note(request: Request, response: Response, id: str):
 
 # Boards!!
 
+class Board(BaseModel):
+	title: str
+
 @api.get("/boards")
 async def get_list_of_boards(request: Request, response: Response):
 	level = await get_clearance_level(request)
@@ -486,6 +488,22 @@ async def get_list_of_boards(request: Request, response: Response):
 		print(e)
 		return {"error": True, "detail": str(e)}
 
+@api.post("/boards")
+async def create_new_boards(request: Request, response: Response, board: Board):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to create new boards."}
+	try:
+		cursor.execute("""INSERT INTO boards (title, created_at, updated_at)
+									VALUES (:title, :created, :updated)""",
+									{"title": board.title, "created": db_safe_current_time(), "updated": db_safe_current_time()})
+		db.commit()
+		id = cursor.execute("SELECT MAX(id) FROM boards").fetchone()
+		return {"error": False, "data": {"id": id}}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
 
 # Other setup
 

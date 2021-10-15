@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 
+import BoardIcon from "@mui/icons-material/DashboardSharp";
 import CloseIcon from "@mui/icons-material/CloseSharp";
 import HomeIcon from "@mui/icons-material/HomeSharp";
 import LinkIcon from "@mui/icons-material/LinkSharp";
@@ -31,6 +32,11 @@ const pages: { text: string; slug: string; icon: JSX.Element }[] = [
 		text: "Home",
 		slug: "/",
 		icon: <HomeIcon />,
+	},
+	{
+		text: "Boards",
+		slug: "/boards",
+		icon: <BoardIcon />,
 	},
 	{
 		text: "Notes",

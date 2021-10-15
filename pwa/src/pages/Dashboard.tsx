@@ -1,5 +1,11 @@
+import {
+	BoardsPage,
+	HomePage,
+	NotesPage,
+	Todos,
+	URLAlias,
+} from "./DashboardPages";
 import { ErrorBoundary, Sidebar } from "../components";
-import { HomePage, NotesPage, Todos, URLAlias } from "./DashboardPages";
 import {
 	IconButton,
 	Stack,
@@ -62,6 +68,9 @@ export function Dashboard() {
 				<RouterSwitch>
 					<Route path="/" exact>
 						<HomePage />
+					</Route>
+					<Route path="/boards">
+						<BoardsPage />
 					</Route>
 					<Route path="/todos">
 						<Todos />
