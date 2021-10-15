@@ -265,6 +265,8 @@ function NewNoteDialog({
 							}
 						)
 							.then((resData) => {
+								if (!resData) return;
+								if (!("data" in resData)) return;
 								setOpen(false);
 								setFetchData(
 									(oldFetchData: {

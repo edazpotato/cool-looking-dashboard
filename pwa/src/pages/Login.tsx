@@ -27,7 +27,8 @@ export function Login() {
 						}
 					)
 						.then((res) => {
-							// console.log(res);
+							if (!res) return;
+							if (!("data" in res)) return;
 							const data = res.data;
 							setUser({
 								loggedIn: true,

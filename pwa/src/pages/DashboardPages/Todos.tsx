@@ -151,6 +151,8 @@ function TodoList({ data, setFetchData }: TodoListProps) {
 			}),
 		})
 			.then((res) => {
+				if (!res) return;
+				if (!("data" in res)) return;
 				console.log("e", res);
 				setFetchData((oldFetchData: any) => {
 					try {
@@ -500,6 +502,8 @@ function NewTodolistDialog({
 							}
 						)
 							.then((resData) => {
+								if (!resData) return;
+								if (!("data" in resData)) return;
 								setNewTodoListDialogeOpen(false);
 								setData({
 									...data,

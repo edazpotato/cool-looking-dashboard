@@ -78,7 +78,7 @@ export async function callAPI(
 	token?: string,
 	fetchArgs?: any,
 	useAPIOptions?: any
-) {
+): Promise<DataType> {
 	const promise = new Promise<any>((resolve, reject) => {
 		fetch(`/api/${endpoint}`, {
 			...fetchArgs,
