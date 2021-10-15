@@ -5,7 +5,12 @@ import {
 	Todos,
 	URLAlias,
 } from "./DashboardPages";
-import { ErrorBoundary, Sidebar } from "../components";
+import {
+	ErrorBoundary,
+	Sidebar,
+	collapsedSidebarWidth,
+	sidebarWidth,
+} from "../components";
 import {
 	IconButton,
 	Stack,
@@ -19,10 +24,11 @@ import { useContext, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserContext } from "../data";
+import createPersistedState from "use-persisted-state";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 
-const drawerWidth = 300;
+const useDesktopExpanded = createPersistedState("desktop-sidebar-expanded");
 
 export function Dashboard() {
 	const [user] = useContext(UserContext);
@@ -30,6 +36,7 @@ export function Dashboard() {
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
 	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+	const [desktopExpanded, setDesktopExpanded] = useDesktopExpanded(true);
 
 	useEffect(() => {
 		enqueueSnackbar("Logged in to CL-Dash.", { variant: "success" });
@@ -40,14 +47,20 @@ export function Dashboard() {
 	return user.loggedIn ? (
 		<Stack
 			sx={{
-				pl: onDesktop ? `${drawerWidth}px` : undefined,
+				pl: onDesktop
+					? desktopExpanded
+						? `${sidebarWidth}px`
+						: `${collapsedSidebarWidth}px`
+					: undefined,
 			}}
 		>
 			<Sidebar
 				mobileOpen={mobileSidebarOpen}
-				onClose={() => setMobileSidebarOpen(false)}
-				onOpen={() => setMobileSidebarOpen(true)}
-				width={drawerWidth}
+				onMobileClose={() => setMobileSidebarOpen(false)}
+				onMobileOpen={() => setMobileSidebarOpen(true)}
+				desktopExpanded={desktopExpanded}
+				onDesktopCollapse={() => setDesktopExpanded(false)}
+				onDesktopExpand={() => setDesktopExpanded(true)}
 			/>
 			{!onDesktop && (
 				<Tooltip title="Open sidebar">
