@@ -10,8 +10,7 @@ import time
 import math
 import re
 import os
-import db
-from server.db import DatabaseHandler
+from db import DatabaseHandler
 
 print(
     "Make sure to run this using the platform-specifc scripts, not directly with python!"
@@ -144,26 +143,7 @@ async def get_all_url_aliases(request: Request, response: Response):
             "detail": "You don't have clearance to get information about all the url aliases.",
         }
     try:
-        aliases = []
-        db_aliases = cursor.execute(
-            "SELECT * FROM url_aliases ORDER BY uses DESC"
-        ).fetchall()
-        for alias in db_aliases:
-            # print(alias)
-            aliases.append(
-                {
-                    "id": alias[0],
-                    "slug": alias[1],
-                    "canonical_url": alias[2],
-                    "meta": {
-                        "title": alias[3],
-                        "description": alias[4],
-                        "colour": alias[5],
-                    },
-                    "created": alias[6],
-                    "uses": alias[7],
-                }
-            )
+        aliases = await db.get_url_aliases()
         return {"error": False, "data": aliases}
     except Exception as e:
         print(e)
@@ -180,22 +160,10 @@ async def get_url_alias(request: Request, response: Response, id: str):
             "detail": "You don't have clearance to get information on a url alias.",
         }
     try:
-        cursor.execute("SELECT * FROM url_aliases WHERE id=:id", {"id": id})
-        alias = cursor.fetchone()
+        alias = await db.get_url_alias_by_id(id)
         return {
             "error": False,
-            "data": {
-                "id": alias[0],
-                "slug": alias[1],
-                "canonical_url": alias[2],
-                "meta": {
-                    "title": alias[3],
-                    "description": alias[4],
-                    "colour": alias[5],
-                },
-                "created": alias[6],
-                "uses": alias[7],
-            },
+            "data": alias,
         }
     except Exception as e:
         print(e)
@@ -212,23 +180,14 @@ async def create_url_alias(request: Request, response: Response, alias: URLAlias
             "detail": "You don't have clearance to create url aliases.",
         }
     try:
-        cursor.execute(
-            """INSERT INTO url_aliases
-		(alias_slug, canonical_url, created_at, uses, meta_title, meta_description, meta_colour, updated_at)
-		values (:slug, :canonical_url, :created_at, :uses, :meta_title, :meta_description, :meta_colour, :updated_at)""",
-            {
-                "slug": alias.slug,
-                "canonical_url": alias.canonical_url,
-                "created_at": db_safe_current_time(),
-                "uses": 0,
-                "meta_title": alias.meta_title,
-                "meta_description": alias.meta_description,
-                "meta_colour": alias.meta_colour,
-                "updated_at": db_safe_current_time(),
-            },
+        id = await db.create_url_alias(
+            alias.slug,
+            alias.canonical_url,
+            alias.meta_title,
+            alias.meta_description,
+            alias.meta_colour,
         )
-        db_connection.commit()
-        return {"error": False}
+        return {"error": False, "data": {"id": id}}
     except Exception as e:
         print(e)
         return {"error": True, "detail": str(e)}
@@ -246,21 +205,14 @@ async def update_url_alias(
             "detail": "You don't have clearance to edit url aliases.",
         }
     try:
-        cursor.execute(
-            """UPDATE url_aliases SET 
-		alias_slug=:slug, canonical_url=:canonical_url, meta_title=:meta_title, meta_description=:meta_description, meta_colour=:meta_colour, updated_at=:updated_at
-		WHERE id=:id""",
-            {
-                "slug": alias.slug,
-                "canonical_url": alias.canonical_url,
-                "meta_title": alias.meta_title,
-                "meta_description": alias.meta_description,
-                "meta_colour": alias.meta_colour,
-                "updated_at": db_safe_current_time(),
-                "id": id,
-            },
+        await db.update_url_alias_by_id(
+            id,
+            alias.slug,
+            alias.canonical_url,
+            alias.meta_title,
+            alias.meta_description,
+            alias.meta_colour,
         )
-        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -277,8 +229,7 @@ async def delete_url_alias(request: Request, response: Response, id: str):
             "detail": "You don't have clearance to delete url aliases.",
         }
     try:
-        cursor.execute("DELETE FROM url_aliases WHERE id=:id", {"id": id})
-        db_connection.commit()
+        await db.delete_url_alias_by_id(id)
         return {"error": False}
     except Exception as e:
         print(e)
@@ -288,15 +239,11 @@ async def delete_url_alias(request: Request, response: Response, id: str):
 @app.get("/a/{slug}", response_class=HTMLResponse)
 async def go_to_alias(request: Request, slug: str):
     try:
-        cursor.execute(
-            "SELECT * FROM url_aliases WHERE alias_slug=:slug", {"slug": slug}
-        )
-        alias = cursor.fetchone()
-        # print(alias)
+        alias = await db.get_url_alias_by_slug(slug)
         if alias:
             cursor.execute(
                 "UPDATE url_aliases SET uses=:updated_uses WHERE id=:id",
-                {"updated_uses": alias[7] + 1, "id": alias[0]},
+                {"updated_uses": alias["uses"] + 1, "id": alias["id"]},
             )
             db_connection.commit()
 
@@ -304,17 +251,16 @@ async def go_to_alias(request: Request, slug: str):
             #  do a http redirect (fast, for humans) or a meta redirect with a delay of
             #  a couple of seconds (slow, for bots that generate previews).
 
-            # return RedirectResponse(alias[2])
             return templates.TemplateResponse(
                 "alias.html",
                 {
                     "request": request,
-                    "url": alias[2],
-                    "title": alias[3],
-                    "description": alias[4],
-                    "colour": alias[5],
+                    "url": alias["canonical_url"],
+                    "title": alias["meta"]["title"],
+                    "description": alias["meta"]["description"],
+                    "colour": alias["meta"]["colour"],
                 },
-                headers={"Location": alias[2]},
+                headers={"Location": alias["canonical_url"]},
             )
         else:
             return RedirectResponse(not_sus_website)
