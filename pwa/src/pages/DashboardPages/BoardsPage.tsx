@@ -188,20 +188,20 @@ function NewBoardDialog({
 							.then((res) => {
 								if (!res) return;
 								if (!("data" in res)) return;
-								onClose();
-								setData({
-									...res,
+								setData((oldData: any) => ({
+									...oldData,
 									data: [
+										...oldData.data,
 										{
 											id: res.data.id,
 											title,
 											created: Date.now(),
 											updated: Date.now(),
 										},
-										...res.data,
 									],
-								});
+								}));
 								setTitle("");
+								onClose();
 							})
 							.catch(console.warn);
 					}}

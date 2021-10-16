@@ -470,6 +470,7 @@ async def get_list_of_boards(request: Request, response: Response):
 		boards = []
 		db_boards = cursor.execute("SELECT * FROM boards ORDER BY created_at ASC").fetchall()
 		for board in db_boards:
+			# print(board)
 			board_id = board[0]
 			boards.append({
 				"id": board_id,
@@ -494,7 +495,7 @@ async def create_new_boards(request: Request, response: Response, board: Board):
 									VALUES (:title, :created, :updated)""",
 									{"title": board.title, "created": db_safe_current_time(), "updated": db_safe_current_time()})
 		db.commit()
-		id = cursor.execute("SELECT MAX(id) FROM boards").fetchone()
+		id = cursor.execute("SELECT MAX(id) FROM boards").fetchone()[0]
 		return {"error": False, "data": {"id": id}}
 	except Exception as e:
 		print(e)
