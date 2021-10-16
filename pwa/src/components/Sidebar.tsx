@@ -11,7 +11,6 @@ import {
 	ListItemText,
 	Stack,
 	SwipeableDrawer,
-	Theme,
 	Tooltip,
 	Typography,
 	useMediaQuery,
@@ -166,7 +165,11 @@ export function Sidebar({
 							</ListItem>
 					  ))
 					: pages.map((page) => (
-							<Tooltip title={page.text} placement="right">
+							<Tooltip
+								title={page.text}
+								placement="right"
+								key={page.slug}
+							>
 								<ListItem
 									sx={{
 										"& > .MuiListItemIcon-root": {
@@ -174,7 +177,6 @@ export function Sidebar({
 										},
 									}}
 									button
-									key={page.slug}
 									onClick={() => {
 										history.push(page.slug);
 										!onDesktop && onMobileClose();

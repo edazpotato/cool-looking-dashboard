@@ -471,17 +471,12 @@ async def get_list_of_boards(request: Request, response: Response):
 		db_boards = cursor.execute("SELECT * FROM boards ORDER BY created_at ASC").fetchall()
 		for board in db_boards:
 			board_id = board[0]
-			categories = cursor.execute("SELECT id, count(*) FROM board_categories WHERE board_id=:id", {"id": board_id}).fetchone()
-			tags = cursor.execute("SELECT count(*) FROM board_tags WHERE board_id=:id", {"id": board_id}).fetchone()
-			items = cursor.execute("SELECT count(*) FROM board_items WHERE board_category_id=:id", {"id": categories[1]}).fetchone()
 			boards.append({
 				"id": board_id,
 				"title": board[1],
 				"created": board[2],
 				"updated": board[3],
-				"category_amount": categories[0],
-				"item_amount": items[0],
-				"tag_amount": tags[0],
+				
 			})
 		return {"error": False, "data": boards}
 	except Exception as e:

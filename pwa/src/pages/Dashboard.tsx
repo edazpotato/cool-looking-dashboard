@@ -125,7 +125,11 @@ export function Dashboard() {
 			<ErrorBoundary>
 				<RouterSwitch>
 					{pages.map((page) => (
-						<Route path={page.slug} exact={page.slug === "/"}>
+						<Route
+							path={page.slug}
+							exact={page.slug === "/"}
+							key={page.slug}
+						>
 							{page.Component}
 						</Route>
 					))}

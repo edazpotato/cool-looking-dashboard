@@ -90,12 +90,8 @@ export const NotesPage = forwardRef((_, ref: ForwardedRef<any>) => {
 						<Alert severity="info">No notes.</Alert>
 					) : (
 						data.data.map((note: NoteType) => (
-							<Grow>
-								<Note
-									key={note.id}
-									data={note}
-									setFetchData={setData}
-								/>
+							<Grow key={note.id}>
+								<Note data={note} setFetchData={setData} />
 							</Grow>
 						))
 					))

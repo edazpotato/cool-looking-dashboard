@@ -108,9 +108,8 @@ export const Todos = forwardRef((_, ref: ForwardedRef<any>) => {
 							</Grow>
 						)}
 						{data.data.map((todoList: TodoListType) => (
-							<Grow>
+							<Grow key={todoList.id}>
 								<TodoList
-									key={todoList.id}
 									data={todoList}
 									setFetchData={setData}
 								/>
@@ -474,7 +473,7 @@ function NewTodolistDialog({
 }) {
 	const [user] = useContext(UserContext);
 	const { enqueueSnackbar } = useSnackbar();
-	const [name, setName] = useState("");
+	const [title, setTitle] = useState("");
 
 	return (
 		<Dialog
@@ -487,11 +486,11 @@ function NewTodolistDialog({
 			<DialogTitle>New todo list</DialogTitle>
 			<DialogContent>
 				<DialogContentText>
-					Enter a name for the new todo list.
+					Enter a title for the new todo list.
 				</DialogContentText>
 				<TextField
-					value={name}
-					onChange={(e) => setName(e.target.value)}
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
 					autoFocus
 					variant="standard"
 					margin="dense"
@@ -513,7 +512,7 @@ function NewTodolistDialog({
 							user.loggedIn ? user.token : undefined,
 							{
 								method: "POST",
-								body: JSON.stringify({ title: name }),
+								body: JSON.stringify({ title }),
 							}
 						)
 							.then((resData) => {
@@ -525,7 +524,7 @@ function NewTodolistDialog({
 									data: [
 										{
 											id: resData.data.id,
-											title: name,
+											title,
 											created: Date.now(),
 											updated: Date.now(),
 											todos: [],
@@ -533,7 +532,7 @@ function NewTodolistDialog({
 										...data.data,
 									],
 								});
-								setName("");
+								setTitle("");
 							})
 							.catch((err) => {
 								enqueueSnackbar(err);
