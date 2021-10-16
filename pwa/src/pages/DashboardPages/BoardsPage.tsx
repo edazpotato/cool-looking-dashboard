@@ -1,5 +1,6 @@
 import {
 	Alert,
+	AlertTitle,
 	Button,
 	Dialog,
 	DialogActions,
@@ -7,6 +8,7 @@ import {
 	DialogContentText,
 	DialogTitle,
 	FormControl,
+	Grow,
 	InputLabel,
 	MenuItem,
 	Select,
@@ -20,6 +22,7 @@ import {
 import { ForwardedRef, forwardRef, useContext, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
 
+import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../../data";
 
 interface BoardType {
@@ -32,7 +35,7 @@ interface BoardType {
 export const BoardsPage = forwardRef((_, ref: ForwardedRef<any>) => {
 	const [user] = useContext(UserContext);
 	const theme = useTheme();
-	const wider = useMediaQuery(theme.breakpoints.up("xs"));
+	const wider = useMediaQuery(theme.breakpoints.up(500));
 	const [activeBoardID, setActiveBoardID] = useState<string | number>("");
 	const [newBoardDialogOpen, setNewBoardDialogOpen] = useState(false);
 
@@ -117,12 +120,58 @@ export const BoardsPage = forwardRef((_, ref: ForwardedRef<any>) => {
 					New board
 				</Button>
 			</Toolbar>
-			{!wider && (
-				<Alert severity="warning">
-					You need to rotate your device to use the Kanaban boards
-					feature
-				</Alert>
-			)}
+
+			<TransitionGroup>
+				{error ? (
+					<Grow>
+						<Alert severity="error">
+							{typeof error === "string" ? (
+								<>
+									<AlertTitle>
+										Error loading boards:
+									</AlertTitle>
+									{error}
+								</>
+							) : (
+								<>Error loading boards.</>
+							)}
+						</Alert>
+					</Grow>
+				) : loading ? (
+					<Grow>
+						<Alert severity="info">Loading boards...</Alert>
+					</Grow>
+				) : (
+					boards &&
+					"data" in boards &&
+					(boards.data.length < 1 ? (
+						<Alert severity="info">No boards.</Alert>
+					) : wider ? (
+						typeof activeBoardID === "number" ||
+						(typeof activeBoardID === "string" &&
+							activeBoardID.length > 0) ? (
+							<Grow>
+								<Board id={activeBoardID} />
+							</Grow>
+						) : (
+							<Grow>
+								<Alert severity="info">
+									Select a board using the dropdown to be able
+									to see it's sections and stuff.
+								</Alert>
+							</Grow>
+						)
+					) : (
+						<Grow>
+							<Alert severity="warning">
+								You need more horizontal screen space to use the
+								boards feature. If you're on mobile, try holding
+								your device horizontally.
+							</Alert>
+						</Grow>
+					))
+				)}
+			</TransitionGroup>
 		</Stack>
 	) : (
 		<Typography ref={ref}>
@@ -212,3 +261,21 @@ function NewBoardDialog({
 		</Dialog>
 	);
 }
+
+const Board = forwardRef(
+	({ id }: { id: string | number }, ref: ForwardedRef<any>) => {
+		const [user] = useContext(UserContext);
+		const theme = useTheme();
+		const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+		const {
+			data: boards,
+			setData: setBoards,
+			loading,
+			error,
+			makeRequest,
+		} = useAPI(`boards/${id}`, user.loggedIn ? user.token : undefined);
+
+		return <div ref={ref}></div>;
+	}
+);

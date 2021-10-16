@@ -32,7 +32,6 @@ import DoneIcon from "@mui/icons-material/DoneSharp";
 import EditIcon from "@mui/icons-material/EditSharp";
 import { TransitionGroup } from "react-transition-group";
 import { UserContext } from "../../data";
-import { useSnackbar } from "notistack";
 
 interface TodoListItemType {
 	id: number | string;
@@ -472,7 +471,6 @@ function NewTodolistDialog({
 	data: any;
 }) {
 	const [user] = useContext(UserContext);
-	const { enqueueSnackbar } = useSnackbar();
 	const [title, setTitle] = useState("");
 
 	return (

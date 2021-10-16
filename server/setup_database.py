@@ -163,17 +163,20 @@ try:
 	CREATE TABLE "board_items" (
 		"id"	INTEGER NOT NULL UNIQUE,
 		"title"	TEXT NOT NULL,
+		"order"	INTEGER NOT NULL UNIQUE,
 		"start_at"	INTEGER NOT NULL,
 		"end_at"	INTEGER NOT NULL,
+		"board_id"	INTEGER NOT NULL,
 		"board_category_id"	INTEGER NOT NULL,
 		"note_id"	INTEGER,
 		"todo_list_id"	INTEGER,
 		"created_at"	INTEGER NOT NULL,
 		"updated_at"	INTEGER NOT NULL,
 		PRIMARY KEY("id" AUTOINCREMENT),
-		FOREIGN KEY("board_category_id") REFERENCES "board_categories"("id"),
 		FOREIGN KEY("note_id") REFERENCES "notes"("id"),
-		FOREIGN KEY("todo_list_id") REFERENCES "todo_lists"("id")
+		FOREIGN KEY("board_id") REFERENCES "boards"("id"),
+		FOREIGN KEY("todo_list_id") REFERENCES "todo_lists"("id"),
+		FOREIGN KEY("board_category_id") REFERENCES "board_categories"("id")
 	);
 	""")
 	db.commit()

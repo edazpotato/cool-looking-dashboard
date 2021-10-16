@@ -460,6 +460,7 @@ async def delete_note(request: Request, response: Response, id: str):
 class Board(BaseModel):
 	title: str
 
+# Get basic information about all the boards
 @api.get("/boards")
 async def get_list_of_boards(request: Request, response: Response):
 	level = await get_clearance_level(request)
@@ -484,6 +485,7 @@ async def get_list_of_boards(request: Request, response: Response):
 		print(e)
 		return {"error": True, "detail": str(e)}
 
+# Create a new board
 @api.post("/boards")
 async def create_new_boards(request: Request, response: Response, board: Board):
 	level = await get_clearance_level(request)
@@ -497,6 +499,94 @@ async def create_new_boards(request: Request, response: Response, board: Board):
 		db.commit()
 		id = cursor.execute("SELECT MAX(id) FROM boards").fetchone()[0]
 		return {"error": False, "data": {"id": id}}
+	except Exception as e:
+		print(e)
+		return {"error": True, "detail": str(e)}
+
+# Get detailed information about one specific board
+@api.get("/boards/{id}")
+async def get_info_about_board(request: Request, response: Response, id: str):
+	level = await get_clearance_level(request)
+	if level < 3:
+		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+		return {"error": True, "detail": "You don't have clearance to get information about a board."}
+	try:
+		board = cursor.execute("SELECT * FROM boards WHERE id=:id", {"id": id}).fetchone()
+		board_id = board[0]
+
+		categories = []
+		db_categories = cursor.execute("SELECT * FROM board_categories WHERE board_id=:board_id ORDER BY order ASC", {"board_id": board_id}).fetchall()
+		for category in db_categories:
+			categories.append({
+				"id": category[0],
+				"title": category[1],
+				"order": category[2],
+				"board_id": category[3],
+				"created": category[4],
+				"updated": category[5]
+			})
+
+		items = []
+		db_items = cursor.execute("SELECT * FROM board_items WHERE board_id=:board_id ORDER BY order ASC", {"board_id": board_id}).fetchall()
+		for item in db_items:
+			
+			note_id = item[7]
+			note = None
+			if note_id is not None:
+				db_note = cursor.execute("SELECT * FROM notes WHERE id=:note_id", {"note_id": note_id}).fetchone()
+				note = {
+					"id": db_note[0],
+					"title": db_note[1],
+					"content": db_note[2],
+					"created": db_note[3],
+					"updated": db_note[4]
+				}
+
+			todo_list_id = item[8]
+			todo_list = None
+			if todo_list_id is not None:
+				todo_items = []
+				db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at ASC", {"todo_list_id": todo_list_id}).fetchall()
+				for todo_item in db_todo_items:
+					todo_items.append({
+						"id": todo_item[0],
+						"is_completed": True if todo_item[1] == 1 else False,
+						"completed": todo_item[5],
+						"content": todo_item[2],
+						"added": todo_item[4],
+						"updated": todo_item[5]
+					})
+				
+				db_todo_list = cursor.execute("SELECT * FROM todo_lists WHERE id=:todo_list_id", {"todo_list_id": todo_list_id}).fetchone()
+				todo_list = {
+					"id": db_todo_list[0],
+					"title": db_todo_list[1],
+					"created": db_todo_list[2],
+					"updated": db_todo_list[3],
+					"todos": todo_items
+				}
+
+			items.append({
+				"id": item[0],
+				"title": item[1],
+				"order": item[2],
+				"start_at": item[3],
+				"end_at": item[4],
+				"board_id": item[5],
+				"category_id": item[6],
+				"note": note,
+				"todo_list": todo_list,
+				"created": item[9],
+				"updated": item[10]
+			})
+
+		return {"error": False, "data": {
+			"id": board[0],
+			"title": board[1],
+			"created": board[2],
+			"updated": board[3],
+			"categories": categories
+		}}
 	except Exception as e:
 		print(e)
 		return {"error": True, "detail": str(e)}
