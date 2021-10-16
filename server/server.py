@@ -10,6 +10,8 @@ import time
 import math
 import re
 import os
+import db
+from server.db import DatabaseHandler
 
 print(
     "Make sure to run this using the platform-specifc scripts, not directly with python!"
@@ -24,8 +26,9 @@ not_sus_website = "https://wikipedia.org/"
 
 tokens = []
 
-db = sqlite3.connect("db/datameridian.db")
-cursor = db.cursor()
+db_connection = sqlite3.connect("db/datameridian.db")
+cursor = db_connection.cursor()
+db = DatabaseHandler(db_connection)
 
 templates = Jinja2Templates(directory="templates")
 
@@ -224,7 +227,7 @@ async def create_url_alias(request: Request, response: Response, alias: URLAlias
                 "updated_at": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -257,7 +260,7 @@ async def update_url_alias(
                 "id": id,
             },
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -275,7 +278,7 @@ async def delete_url_alias(request: Request, response: Response, id: str):
         }
     try:
         cursor.execute("DELETE FROM url_aliases WHERE id=:id", {"id": id})
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -295,7 +298,7 @@ async def go_to_alias(request: Request, slug: str):
                 "UPDATE url_aliases SET uses=:updated_uses WHERE id=:id",
                 {"updated_uses": alias[7] + 1, "id": alias[0]},
             )
-            db.commit()
+            db_connection.commit()
 
             # TODO: Add something that takes the user agent and determines wether to
             #  do a http redirect (fast, for humans) or a meta redirect with a delay of
@@ -353,7 +356,7 @@ async def create_todo_list(request: Request, response: Response, todo_list: Todo
                 "updated_at": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         cursor.execute("SELECT MAX(id) FROM todo_lists")
         new_todo_list = cursor.fetchone()
         return {"error": False, "data": {"id": new_todo_list[0]}}
@@ -429,7 +432,7 @@ async def edit_todo_list(
                 "todo_list_id": todo_list_id,
             },
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -454,7 +457,7 @@ async def delete_url_alias(request: Request, response: Response, todo_list_id: s
             "DELETE FROM todo_lists WHERE id=:todo_list_id",
             {"todo_list_id": todo_list_id},
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -489,7 +492,7 @@ async def add_todo_list_item(
                 "updated_at": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         cursor.execute("SELECT MAX(id) FROM todo_items")
         new_todo_item = cursor.fetchone()
         return {"error": False, "data": {"id": new_todo_item[0]}}
@@ -531,7 +534,7 @@ async def edit_todo_list_item(
                 "updated_at": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -554,7 +557,7 @@ async def delete_url_alias(
             "DELETE FROM todo_items WHERE todo_list_id=:todo_list_id AND id=:todo_item_id",
             {"todo_list_id": todo_list_id, "todo_item_id": todo_item_id},
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -618,7 +621,7 @@ async def create_new_note(request: Request, response: Response, note: Note):
                 "updated": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         id = cursor.execute("SELECT MAX(id) FROM todo_lists").fetchone()
         return {"error": False, "data": {"id": id}}
     except Exception as e:
@@ -646,7 +649,7 @@ async def edit_note(request: Request, response: Response, id: str, note: Note):
                 "id": id,
             },
         )
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -664,7 +667,7 @@ async def delete_note(request: Request, response: Response, id: str):
         }
     try:
         cursor.execute("DELETE FROM notes WHERE id=:id", {"id": id})
-        db.commit()
+        db_connection.commit()
         return {"error": False}
     except Exception as e:
         print(e)
@@ -730,7 +733,7 @@ async def create_new_boards(request: Request, response: Response, board: Board):
                 "updated": db_safe_current_time(),
             },
         )
-        db.commit()
+        db_connection.commit()
         id = cursor.execute("SELECT MAX(id) FROM boards").fetchone()[0]
         return {"error": False, "data": {"id": id}}
     except Exception as e:

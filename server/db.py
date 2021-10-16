@@ -29,10 +29,8 @@ class DatabaseHandler:
     def get_safe_time() -> int:
         return math.floor(time.time() * 1000)
 
-    def get_url_alias(self) -> URLAliasType:
-        self.cursor.execute(
-            "SELECT * FROM url_aliases WHERE slug=:slug", {"slug": slug}
-        )
+    def get_url_alias(self, id: IdType) -> URLAliasType:
+        self.cursor.execute("SELECT * FROM url_aliases WHERE id=:id", {"id": id})
         alias = self.cursor.fetchone()
         return {
             "id": alias[0],
