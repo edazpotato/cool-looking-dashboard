@@ -510,10 +510,13 @@ async def get_info_about_board(request: Request, response: Response, id: str):
 	if level < 3:
 		response.status_code = status.HTTP_406_NOT_ACCEPTABLE
 		return {"error": True, "detail": "You don't have clearance to get information about a board."}
+	
 	try:
+		# Get basic info about the board
 		board = cursor.execute("SELECT * FROM boards WHERE id=:id", {"id": id}).fetchone()
 		board_id = board[0]
 
+		# Get a list of the board's categories as dictionaries
 		categories = []
 		db_categories = cursor.execute("SELECT * FROM board_categories WHERE board_id=:board_id ORDER BY order ASC", {"board_id": board_id}).fetchall()
 		for category in db_categories:
@@ -526,10 +529,12 @@ async def get_info_about_board(request: Request, response: Response, id: str):
 				"updated": category[5]
 			})
 
+		# Get a list of the board's items as dictionaries
 		items = []
 		db_items = cursor.execute("SELECT * FROM board_items WHERE board_id=:board_id ORDER BY order ASC", {"board_id": board_id}).fetchall()
 		for item in db_items:
-			
+
+			# If the item has a note attached to it, get that note's information
 			note_id = item[7]
 			note = None
 			if note_id is not None:
@@ -542,9 +547,11 @@ async def get_info_about_board(request: Request, response: Response, id: str):
 					"updated": db_note[4]
 				}
 
+			# If the item has a todo-list attached to it, get that todo-lists's information
 			todo_list_id = item[8]
 			todo_list = None
 			if todo_list_id is not None:
+				# Get all the todo-items in that todo-list
 				todo_items = []
 				db_todo_items = cursor.execute("SELECT * FROM todo_items WHERE todo_list_id=:todo_list_id ORDER BY added_at ASC", {"todo_list_id": todo_list_id}).fetchall()
 				for todo_item in db_todo_items:
@@ -556,7 +563,8 @@ async def get_info_about_board(request: Request, response: Response, id: str):
 						"added": todo_item[4],
 						"updated": todo_item[5]
 					})
-				
+
+				# Get the actual information about the todo-list
 				db_todo_list = cursor.execute("SELECT * FROM todo_lists WHERE id=:todo_list_id", {"todo_list_id": todo_list_id}).fetchone()
 				todo_list = {
 					"id": db_todo_list[0],
@@ -580,6 +588,7 @@ async def get_info_about_board(request: Request, response: Response, id: str):
 				"updated": item[10]
 			})
 
+		# Return the information we've collected
 		return {"error": False, "data": {
 			"id": board[0],
 			"title": board[1],
