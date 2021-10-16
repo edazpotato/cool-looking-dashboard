@@ -21,7 +21,6 @@ import { ForwardedRef, forwardRef, useContext, useState } from "react";
 import { callAPI, useAPI } from "../../utils";
 
 import { UserContext } from "../../data";
-import { useSnackbar } from "notistack";
 
 interface BoardType {
 	id: string | number;
@@ -145,7 +144,7 @@ function NewBoardDialog({
 	const [user] = useContext(UserContext);
 	const theme = useTheme();
 	const onDesktop = useMediaQuery(theme.breakpoints.up("md"));
-	const { enqueueSnackbar } = useSnackbar();
+
 	const [title, setTitle] = useState("");
 
 	return (

@@ -232,9 +232,6 @@ export function Sidebar({
 						<Drawer
 							variant="permanent"
 							sx={{
-								width: sidebarWidth, //desktopExpanded
-								// 	? sidebarWidth
-								// 	: collapsedSidebarWidth,
 								overflowX: "hidden",
 								"& .MuiDrawer-paper": {
 									boxSizing: "border-box",
@@ -244,7 +241,7 @@ export function Sidebar({
 									overflowX: "hidden",
 								},
 							}}
-							// open={desktopExpanded}
+							open
 						>
 							<DrawerContent />
 						</Drawer>
