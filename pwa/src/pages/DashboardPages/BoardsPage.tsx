@@ -57,6 +57,7 @@ export const BoardsPage = forwardRef((_, ref: ForwardedRef<any>) => {
 					<FormControl sx={{ ml: "auto" }}>
 						<InputLabel id="board-selector"></InputLabel>
 						<Select
+							variant="filled"
 							sx={{
 								minWidth: 150,
 							}}
