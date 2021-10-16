@@ -93,5 +93,5 @@ class DatabaseHandler:
             },
         )
         self.commit()
-        id = self.cursor.execute("SELECT MAX(id) FROM todo_lists").fetchone()[0]
+        id = self.cursor.execute("SELECT MAX(id) FROM url_aliases").fetchone()[0]
         return id
