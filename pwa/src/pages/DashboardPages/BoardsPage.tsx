@@ -204,10 +204,7 @@ function NewBoardDialog({
 								});
 								setTitle("");
 							})
-							.catch((err) => {
-								enqueueSnackbar(err);
-								console.warn(err);
-							});
+							.catch(console.warn);
 					}}
 				>
 					Create

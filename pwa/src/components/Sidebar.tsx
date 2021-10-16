@@ -241,6 +241,7 @@ export function Sidebar({
 									width: desktopExpanded
 										? sidebarWidth
 										: collapsedSidebarWidth,
+									overflowX: "hidden",
 								},
 							}}
 							// open={desktopExpanded}
