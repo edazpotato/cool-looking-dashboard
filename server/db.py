@@ -24,6 +24,29 @@ URLAliasType = TypedDict(
     },
 )
 
+TodoItemType = TypedDict(
+    "TodoItemType",
+    {
+        "id": IdType,
+        "is_completed": bool,
+        "completed": int,
+        "content": str,
+        "added": int,
+        "updated": int,
+    },
+)
+
+TodoListType = TypedDict(
+    "TodoListType",
+    {
+        "id": IdType,
+        "title": str,
+        "created": int,
+        "updated": int,
+        "todos": list[TodoItemType],
+    },
+)
+
 
 class DatabaseHandler:
     def __init__(self, db: Connection) -> None:
@@ -147,3 +170,18 @@ class DatabaseHandler:
     async def delete_url_alias_by_id(self, id: IdType) -> None:
         self.cursor.execute("DELETE FROM url_aliases WHERE id=:id", {"id": id})
         self.commit()
+
+    async def create_todo_list(self, title: str) -> IdType:
+        self.cursor.execute(
+            """INSERT INTO todo_lists
+		(title, created_at, updated_at)
+		values (:title, :created_at, :updated_at)""",
+            {
+                "title": title,
+                "created_at": self.get_safe_time(),
+                "updated_at": self.get_safe_time(),
+            },
+        )
+        self.commit()
+        id = self.cursor.execute("SELECT MAX(id) FROM todo_lists").fetchone()[0]
+        return id
