@@ -1,9 +1,9 @@
 import { Dashboard, Login } from "./pages";
-import { ThemeProvider, createTheme } from "@mui/material";
+import { Slide, ThemeProvider, createTheme } from "@mui/material";
 
 import { HashRouter as Router } from "react-router-dom";
-import { SlideTransition } from "./utils";
 import { SnackbarProvider } from "notistack";
+import { TransitionProps } from "@mui/material/transitions";
 import { UserContext } from "./data";
 import { useContext } from "react";
 
@@ -39,10 +39,9 @@ declare global {
 	}
 }
 
-declare module "@mui/material/Button" {
-	interface ButtonPropsVariantOverrides {
-		dotted: true;
-	}
+export function SlideTransition(props: TransitionProps) {
+	// @ts-ignore
+	return <Slide {...props} direction="left" />;
 }
 
 export default function App() {
