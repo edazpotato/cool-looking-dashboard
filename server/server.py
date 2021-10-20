@@ -292,20 +292,8 @@ async def create_todo_list(request: Request, response: Response, todo_list: Todo
             "detail": "You don't have clearance to create new todo lists.",
         }
     try:
-        cursor.execute(
-            """INSERT INTO todo_lists
-		(title, created_at, updated_at)
-		values (:title, :created_at, :updated_at)""",
-            {
-                "title": todo_list.title,
-                "created_at": db_safe_current_time(),
-                "updated_at": db_safe_current_time(),
-            },
-        )
-        db_connection.commit()
-        cursor.execute("SELECT MAX(id) FROM todo_lists")
-        new_todo_list = cursor.fetchone()
-        return {"error": False, "data": {"id": new_todo_list[0]}}
+        id = await db.create_todo_list(todo_list.title)
+        return {"error": False, "data": {"id": id}}
     except Exception as e:
         print(e)
         return {"error": True, "detail": str(e)}
