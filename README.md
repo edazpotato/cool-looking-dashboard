@@ -1,28 +1,29 @@
-# cool looking dashboard
+# Cool-looking Dashboard
 
-It'll monitor servers, keep track of todos and notes, and have a web-based ssh terminal and be dockerised to its easily self-hostable.
+It'll monitor servers, keep track of to-dos and notes, and have a web-based `ssh` terminal and be Dockerised to be easily self-hostable.
 
 ## Deployment
 
-There are two ways to deploy this app. You can use docker, or run it on a normal server. Both will start the app on port 80. For SSL, just stick it behind Cloudflare.
+There are two ways to deploy this app. You can use Docker, or run it on a normal server. Both will start the app on port 80. For SSL, just stick it behind Cloudflare.
 
 ### Running it with docker
 
 #### Building the image yourself
 
 1. Install Docker.
-2. Build the image: `docker build -t cl-dash .`. (This can take a very long time.)
-3. Create a docker volume to store the SQLite database in: `docker volume create cl-dash-db`.
-4. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash`.
+2. Clone the repository.
+3. Build the image with `docker build -t cl-dash .` (This can take a very long time).
+4. Create a docker volume to store the SQLite database in: `docker volume create cl-dash-db`.
+5. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash`.
 
 #### Using a pre-built image
 
-I'll try and remember to publish pre-built images to the [dockerhub page](https://hub.docker.com/repository/docker/edaz/cl-dash) but I'll probably forget sometimes, so I highly recommend building it yourself.
+I'll try and remember to publish pre-built images to the [DockerHub page](https://hub.docker.com/repository/docker/edaz/cl-dash) but I'll probably forget sometimes, so I highly recommend building it yourself.
 
-> Note that these examples use `0.1.0` as the version. This won't be kept up-to-date, so make sure to use the latest version on the [dockerhub page](https://hub.docker.com/repository/docker/edaz/cl-dash).
+> Note that these examples use `0.1.0` as the version. This won't be kept up-to-date, so make sure to use the latest version on the [DockerHub page](https://hub.docker.com/repository/docker/edaz/cl-dash).
 
 1. Install Docker.
-2. Pull the image: `docker image pull edaz/cl-dash:0.1.0`.
+2. Pull the image: `docker image pull edaz/cl-dash:latest`.
 3. Create a docker volume to store the SQLite database in: `docker volume create cl-dash-db`.
 4. Run the image: `docker run --name cl-dash-instance -dp 80:80 --mount source=cl-dash-db,target=/usr/src/cool-looking-dashboard/server/db cl-dash:0.1.0`.
 
@@ -77,6 +78,6 @@ chmod +x run_server.sh
 
 ## Licence
 
-See LICENCE file.
+This project is licensed under the Unlicense license. See the [LICENCE](./LICENSE) file for more information.
 
 > Note to self: To build, use `docker build -t edaz/cl-dash:0.1.0 .`.
