@@ -28,7 +28,7 @@ export const HomePage = forwardRef((_, ref: ForwardedRef<any>) => {
 			>
 				<ClockPanel />
 				<GlobePanel />
-				<FFMPEGPanel />
+				{/* <FFMPEGPanel /> */}
 			</Stack>
 			<Typography>
 				{user.name}, you are logged in! Your current session expires at{" "}
