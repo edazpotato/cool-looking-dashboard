@@ -77,7 +77,10 @@ export function ClockPanel() {
 			>
 				<Typography
 					variant={onDesktop ? "h2" : "h4"}
-					sx={{ textAlign: "center" }}
+					sx={{
+						textAlign: "center",
+						fontFamily: '"Roboto Mono", monospace',
+					}}
 				>
 					{`${hours}:${minutes}:${seconds}${
 						showMilliseconds ? ":" + milliseconds : ""

@@ -5,6 +5,8 @@ specifiers:
   '@emotion/styled': ^11.3.0
   '@ffmpeg/core': ^0.10.0
   '@ffmpeg/ffmpeg': ^0.10.1
+  '@fontsource/roboto': ^4.5.1
+  '@fontsource/roboto-mono': ^4.5.0
   '@mui/icons-material': ^5.0.4
   '@mui/material': ^5.0.4
   '@types/node': ^12.20.33
@@ -31,6 +33,8 @@ dependencies:
   '@emotion/styled': 11.3.0_6f94b2783421bb5436eb17c111598043
   '@ffmpeg/core': 0.10.0
   '@ffmpeg/ffmpeg': 0.10.1
+  '@fontsource/roboto': 4.5.1
+  '@fontsource/roboto-mono': 4.5.0
   '@mui/icons-material': 5.0.4_e9b24d4362a2635d8603662f0ffe60af
   '@mui/material': 5.0.4_dbdd924696a105d41a67e616819acc62
   '@types/node': 12.20.33
@@ -1712,6 +1716,14 @@ packages:
       node-fetch: 2.6.5
       regenerator-runtime: 0.13.9
       resolve-url: 0.2.1
+    dev: false
+
+  /@fontsource/roboto-mono/4.5.0:
+    resolution: {integrity: sha512-/6Gm6fJjBHZiFNyvzIKGJkVuyifoc1aoTel+pkzdhxNh7yNhFyokCoChdbbqZEpGKpqs5uld74G5TJthUVFyjw==}
+    dev: false
+
+  /@fontsource/roboto/4.5.1:
+    resolution: {integrity: sha512-3mhfL+eNPG/woMNqwD/OHaW5qMpeGEBsDwzmhFmjB1yUV+M+M9P0NhP/AyHvnGz3DrqkvZ7CPzNMa+UkVLeELg==}
     dev: false
 
   /@gar/promisify/1.1.2:

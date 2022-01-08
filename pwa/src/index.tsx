@@ -1,4 +1,6 @@
 import "./index.css";
+import "@fontsource/roboto";
+import "@fontsource/roboto-mono";
 
 import App from "./App";
 import { CssBaseline } from "@mui/material";
